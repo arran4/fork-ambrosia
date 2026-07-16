@@ -3,21 +3,13 @@ Section: x11
 Priority: optional
 Maintainer: Ambrosia Maintainers <ambrosia@example.com>
 Build-Depends:
- debhelper-compat (= 13),
+ debhelper (>= 9),
  gnustep-make,
  libgnustep-base-dev,
  libgnustep-gui-dev,
  pkg-config,
- libwlroots-0.20-dev,
- libwayland-dev,
- libxkbcommon-dev,
- libcairo2-dev,
- libxcb1-dev,
- libxcb-icccm4-dev,
- libxcb-ewmh-dev,
- libdrm-dev,
  libdbus-1-dev,
- libjpeg-dev
+ clang
 Standards-Version: 4.7.2
 Rules-Requires-Root: no
 
