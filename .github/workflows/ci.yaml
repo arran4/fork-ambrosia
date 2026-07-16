@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debian-package
-          path: *.deb
+          path: '*.deb'
           retention-days: 1
 
   publish-draft:
