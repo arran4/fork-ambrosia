@@ -26,7 +26,7 @@ AmbrosiaMenus_OBJC_FILES = \
     NSApplication+AmbrosiaMenus.m \
     NSMenu+AmbrosiaMenus.m
 
-AmbrosiaMenus_OBJCFLAGS       =
+AmbrosiaMenus_OBJCFLAGS       = -fobjc-arc
 AmbrosiaMenus_PRINCIPAL_CLASS  = AmbrosiaMenusBundle
 
 include $(GNUSTEP_MAKEFILES)/bundle.make
