@@ -6,7 +6,12 @@ BUNDLE_INSTALL_DIR = $(GNUSTEP_SYSTEM_LIBRARY)/Bundles
 
 AmbrosiaModule_OBJC_FILES = AmbrosiaModule.m
 
+ifeq ($(LEGACY_OBJC_RUNTIME),1)
+AmbrosiaModule_OBJCFLAGS  = -fno-objc-arc -DAMBROSIA_LEGACY_MRC=1
+else
 AmbrosiaModule_OBJCFLAGS  = -fobjc-arc
+endif
+
 AmbrosiaModule_PRINCIPAL_CLASS = AmbrosiaModule
 AmbrosiaModule_MAIN_MODEL_FILE = AmbrosiaModule
 

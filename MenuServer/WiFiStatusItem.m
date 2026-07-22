@@ -113,7 +113,11 @@ static NSArray<NSDictionary *> *FetchWiFiConnections(void)
     NSArray<NSDictionary *> *_connections;
     BOOL                     _wifiEnabled;
     NSTimer                 *_timer;
-    __weak id                _delegate;
+    #ifdef AMBROSIA_LEGACY_MRC
+    id
+#else
+    __weak id
+#endif                _delegate;
 }
 
 @synthesize pluginDelegate = _delegate;

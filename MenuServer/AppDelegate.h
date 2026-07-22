@@ -4,6 +4,10 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (nonatomic, strong) MenuBarController *menuBarController;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif MenuBarController *menuBarController;
 
 @end

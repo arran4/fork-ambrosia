@@ -38,7 +38,11 @@
 @property (nonatomic, readonly, copy) NSString *menuPath;
 
 /** Delegate notified when properties are updated. */
-@property (nonatomic, weak) id<TrayItemDelegate> delegate;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, assign)
+#else
+@property (nonatomic, weak)
+#endif id<TrayItemDelegate> delegate;
 
 /**
  * Designated initialiser.

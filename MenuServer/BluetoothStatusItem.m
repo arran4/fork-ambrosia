@@ -142,7 +142,11 @@ static void ParseDeviceInfo(NSString *output,
     NSArray<NSDictionary *> *_devices;
     BOOL                     _btEnabled;
     NSTimer                 *_timer;
-    __weak id                _delegate;
+    #ifdef AMBROSIA_LEGACY_MRC
+    id
+#else
+    __weak id
+#endif                _delegate;
 }
 
 @synthesize pluginDelegate = _delegate;

@@ -18,52 +18,192 @@
   BOOL loaded;
 }
 /* Compositor settings outlets */
-@property (nonatomic, strong) IBOutlet NSSlider       *transparencySlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *transparencyLabel;
-@property (nonatomic, strong) IBOutlet NSButton       *enableDecorationsCheck;
-@property (nonatomic, strong) IBOutlet NSButton       *enableBlurCheck;
-@property (nonatomic, strong) IBOutlet NSButton       *x11DecorationsCheck;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSSlider       *transparencySlider;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *transparencyLabel;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *enableDecorationsCheck;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *enableBlurCheck;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *x11DecorationsCheck;
 
 /* Dock settings outlets */
-@property (nonatomic, strong) IBOutlet NSSlider       *iconSizeSlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *iconSizeLabel;
-@property (nonatomic, strong) IBOutlet NSSlider       *zoomFactorSlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *zoomFactorLabel;
-@property (nonatomic, strong) IBOutlet NSSegmentedControl *positionControl;
-@property (nonatomic, strong) IBOutlet NSButton       *autoHideCheck;
-@property (nonatomic, strong) IBOutlet NSSlider       *autoHideDelaySlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *autoHideDelayLabel;
-@property (nonatomic, strong) IBOutlet NSButton       *showRunningIndicatorCheck;
-@property (nonatomic, strong) IBOutlet NSTableView    *dockItemsTable;
-@property (nonatomic, strong) IBOutlet NSButton       *addItemButton;
-@property (nonatomic, strong) IBOutlet NSButton       *removeItemButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSSlider       *iconSizeSlider;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *iconSizeLabel;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSSlider       *zoomFactorSlider;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *zoomFactorLabel;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSSegmentedControl *positionControl;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *autoHideCheck;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSSlider       *autoHideDelaySlider;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *autoHideDelayLabel;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *showRunningIndicatorCheck;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTableView    *dockItemsTable;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *addItemButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *removeItemButton;
 
 /* Session settings outlets */
-@property (nonatomic, strong) IBOutlet NSTableView    *sessionItemsTable;
-@property (nonatomic, strong) IBOutlet NSButton       *addSessionItemButton;
-@property (nonatomic, strong) IBOutlet NSButton       *removeSessionItemButton;
-@property (nonatomic, strong) IBOutlet NSTableView    *startupCommandsTable;
-@property (nonatomic, strong) IBOutlet NSButton       *addStartupCommandButton;
-@property (nonatomic, strong) IBOutlet NSButton       *removeStartupCommandButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTableView    *sessionItemsTable;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *addSessionItemButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *removeSessionItemButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTableView    *startupCommandsTable;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *addStartupCommandButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *removeStartupCommandButton;
 
 /* Desktop settings outlets */
-@property (nonatomic, strong) IBOutlet NSTextField    *bgImagePathField;
-@property (nonatomic, strong) IBOutlet NSButton       *bgImageChooseButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *bgImagePathField;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *bgImageChooseButton;
 /* Background mode radio buttons (replaces the old rotatingCheck checkbox) */
-@property (nonatomic, strong) IBOutlet NSButton       *bgImageRadio;
-@property (nonatomic, strong) IBOutlet NSButton       *rotatingRadio;
-@property (nonatomic, strong) IBOutlet NSButton       *bg3DRadio;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *bgImageRadio;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *rotatingRadio;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *bg3DRadio;
 /* Rotating-mode controls */
-@property (nonatomic, strong) IBOutlet NSTextField    *bgFolderPathField;
-@property (nonatomic, strong) IBOutlet NSButton       *bgFolderChooseButton;
-@property (nonatomic, strong) IBOutlet NSSlider       *intervalSlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *intervalLabel;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *bgFolderPathField;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *bgFolderChooseButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSSlider       *intervalSlider;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *intervalLabel;
 /* 3D-mode controls */
-@property (nonatomic, strong) IBOutlet NSTextField    *sceneFilePathField;
-@property (nonatomic, strong) IBOutlet NSButton       *sceneFileChooseButton;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTextField    *sceneFilePathField;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSButton       *sceneFileChooseButton;
 
 /* Tab view for switching sections */
-@property (nonatomic, strong) IBOutlet NSTabView      *tabView;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, retain)
+#else
+@property (nonatomic, strong)
+#endif IBOutlet NSTabView      *tabView;
 
 /* IBActions */
 - (IBAction)transparencyChanged:(id)sender;

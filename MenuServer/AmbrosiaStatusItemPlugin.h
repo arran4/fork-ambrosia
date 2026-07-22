@@ -52,7 +52,11 @@
  * Delegate set by MenuBarController so the plugin can request a bar redraw
  * after -refresh completes.
  */
-@property (nonatomic, weak) id pluginDelegate;
+#ifdef AMBROSIA_LEGACY_MRC
+@property (nonatomic, assign)
+#else
+@property (nonatomic, weak)
+#endif id pluginDelegate;
 
 @end
 
