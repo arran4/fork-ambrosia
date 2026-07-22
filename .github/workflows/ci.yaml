@@ -36,7 +36,7 @@ jobs:
             echo 'deb [trusted=yes] http://archive.debian.org/debian jessie main' > /etc/apt/sources.list && \
             echo 'Acquire::Check-Valid-Until \"false\";' > /etc/apt/apt.conf.d/99archive && \
             apt-get -o Acquire::Check-Valid-Until=false update && \
-            apt-get install -y --no-install-recommends build-essential devscripts equivs wget curl && \
+            apt-get install -y --force-yes --allow-unauthenticated build-essential devscripts equivs wget curl && \
             mk-build-deps -i -r -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y --force-yes' && \
             export CC=clang && export CXX=clang++ && export OBJC=clang && dpkg-buildpackage -us -uc -b && mv /*.deb /workspace/"
 
