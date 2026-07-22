@@ -36,12 +36,12 @@ jobs:
             echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" \
               > /etc/apt/sources.list
 
-            cat > /etc/apt/apt.conf.d/99archive <<EOF
+            cat > /etc/apt/apt.conf.d/99archive <<INNEREOF
           Acquire::Check-Valid-Until "false";
           Acquire::AllowInsecureRepositories "true";
           Acquire::AllowDowngradeToInsecureRepositories "true";
           APT::Get::AllowUnauthenticated "true";
-          EOF
+          INNEREOF
 
             mkdir -p /var/cache/apt/archives/partial
             apt-get clean
