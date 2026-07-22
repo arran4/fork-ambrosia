@@ -33,10 +33,10 @@ jobs:
       - name: Build Debian Package in Docker
         run: |
           docker run --rm --platform linux/arm/v7 -v ${{ github.workspace }}:/workspace -w /workspace arm32v7/debian:jessie /bin/bash -c "\
-            echo 'deb http://archive.debian.org/debian jessie main' > /etc/apt/sources.list && \
-            echo 'Acquire::Check-Valid-Until \"false\";' > /etc/apt/apt.conf.d/99no-check-valid-until && \
-            apt-get -o Acquire::Check-Valid-Until=false update || true && \
-            apt-get install -y --force-yes --allow-unauthenticated build-essential devscripts equivs wget curl && \
+            echo 'deb [trusted=yes] http://archive.debian.org/debian jessie main' > /etc/apt/sources.list && \
+            echo 'Acquire::Check-Valid-Until \"false\";' > /etc/apt/apt.conf.d/99archive && \
+            apt-get -o Acquire::Check-Valid-Until=false update && \
+            apt-get install -y --no-install-recommends build-essential devscripts equivs wget curl && \
             mk-build-deps -i -r -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y --force-yes' && \
             export CC=clang && export CXX=clang++ && export OBJC=clang && dpkg-buildpackage -us -uc -b && mv /*.deb /workspace/"
 
