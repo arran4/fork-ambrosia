@@ -6,8 +6,8 @@ export DH_VERBOSE = 1
 	dh $@
 
 override_dh_auto_build:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE)
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) CC=clang CXX=clang++ OBJC=clang
 
 override_dh_auto_install:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia CC=clang CXX=clang++ OBJC=clang
 	install -D -m 0755 ambrosia-session $(CURDIR)/debian/ambrosia/usr/bin/ambrosia-session
