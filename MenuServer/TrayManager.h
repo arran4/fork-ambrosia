@@ -22,11 +22,8 @@
 @property (nonatomic, readonly, copy) NSArray<TrayItem *> *trayItems;
 
 /** Delegate notified when items are added, removed, or updated. */
-#ifdef AMBROSIA_LEGACY_MRC
 @property (nonatomic, assign)
-#else
-@property (nonatomic, weak)
-#endif id<TrayManagerDelegate> delegate;
+@property (nonatomic, assign)
 
 /**
  * Connect to the session D-Bus, register org.kde.StatusNotifierWatcher,

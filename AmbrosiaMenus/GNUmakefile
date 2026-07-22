@@ -26,11 +26,10 @@ AmbrosiaMenus_OBJC_FILES = \
     NSApplication+AmbrosiaMenus.m \
     NSMenu+AmbrosiaMenus.m
 
-ifeq ($(LEGACY_OBJC_RUNTIME),1)
-AmbrosiaMenus_OBJCFLAGS       = -fno-objc-arc -DAMBROSIA_LEGACY_MRC=1
-else
-AmbrosiaMenus_OBJCFLAGS       = -fobjc-arc
-endif
+
+AmbrosiaMenus_OBJCFLAGS       = -fno-objc-arc
+
+
 
 AmbrosiaMenus_PRINCIPAL_CLASS  = AmbrosiaMenusBundle
 

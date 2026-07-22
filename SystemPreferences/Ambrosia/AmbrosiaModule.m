@@ -21,21 +21,9 @@ static const NSInteger kAutoHideDelayValues[] = { 3, 5, 10, 20, 30, 60, 120 };
 static const NSUInteger kAutoHideDelayCount   = 7;
 
 @interface AmbrosiaModule () <NSTableViewDataSource, NSTableViewDelegate>
-#ifdef AMBROSIA_LEGACY_MRC
 @property (nonatomic, retain)
-#else
-@property (nonatomic, strong)
-#endif NSMutableArray<NSDictionary *> *dockItems;
-#ifdef AMBROSIA_LEGACY_MRC
 @property (nonatomic, retain)
-#else
-@property (nonatomic, strong)
-#endif NSMutableArray<NSDictionary *> *sessionItems;
-#ifdef AMBROSIA_LEGACY_MRC
 @property (nonatomic, retain)
-#else
-@property (nonatomic, strong)
-#endif NSMutableArray<NSString *>     *startupCommands;
 @end
 
 /* ---------------------------------------------------------------------- */
@@ -705,6 +693,14 @@ static NSButton *MakeRadioButton(NSString *title)
         _desktopPrefs = LoadPlist(_desktopPrefsPath);
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_dockItems release];
+    [_sessionItems release];
+    [_startupCommands release];
+    [super dealloc];
 }
 
 - (void)mainViewDidLoad

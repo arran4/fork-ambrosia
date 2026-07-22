@@ -49,11 +49,8 @@ static void ApplyVolume(CGFloat percent)
 @implementation VolumeStatusItem {
     CGFloat  _volume;   /* 0..100 */
     NSTimer *_timer;
-    #ifdef AMBROSIA_LEGACY_MRC
     id
-#else
-    __weak id
-#endif _delegate;
+    id
 }
 
 @synthesize pluginDelegate = _delegate;

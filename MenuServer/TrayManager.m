@@ -101,11 +101,8 @@ static const DBusObjectPathVTable kWatcherVTable = {
     /* Register StatusNotifierWatcher object path */
     if (!dbus_connection_register_object_path(_conn, kWatcherPath,
                                               &kWatcherVTable,
-                                              #ifdef AMBROSIA_LEGACY_MRC
 (void *)
-#else
-(__bridge void *)
-#endifself)) {
+(void *)
         NSLog(@"TrayManager: failed to register object path %s", kWatcherPath);
     }
 
@@ -151,11 +148,8 @@ static const DBusObjectPathVTable kWatcherVTable = {
     if (dbus_error_is_set(&err)) dbus_error_free(&err);
 
     dbus_connection_add_filter(_conn, watcherMessageHandler,
-                               #ifdef AMBROSIA_LEGACY_MRC
 (void *)
-#else
-(__bridge void *)
-#endifself, NULL);
+(void *)
     dbus_connection_flush(_conn);
 
     /* Replace the old blocking while-loop with a GCD timer that fires on
@@ -176,17 +170,11 @@ static const DBusObjectPathVTable kWatcherVTable = {
         20 * NSEC_PER_MSEC,   /* 20 ms interval — low latency for signals  */
         5  * NSEC_PER_MSEC);  /* 5 ms leeway                               */
 
-    #ifdef AMBROSIA_LEGACY_MRC
     id weakSelf = self;
-#else
-    __weak typeof(self) weakSelf = self;
-#endif
+    id weakSelf = self;
     dispatch_source_set_event_handler(_dispatchSource, ^{
-        #ifdef AMBROSIA_LEGACY_MRC
         id strongSelf = weakSelf;
-#else
-        __strong typeof(self) strongSelf = weakSelf;
-#endif
+        id strongSelf = weakSelf;
         if (!strongSelf || !strongSelf->_conn) return;
         if (!dbus_connection_get_is_connected(strongSelf->_conn)) {
             NSLog(@"TrayManager: D-Bus connection lost.");
@@ -219,11 +207,8 @@ static DBusHandlerResult watcherMessageHandler(DBusConnection *conn,
                                                DBusMessage    *msg,
                                                void           *userData)
 {
-    TrayManager *self = #ifdef AMBROSIA_LEGACY_MRC
 (TrayManager *)
-#else
-(__bridge TrayManager *)
-#endifuserData;
+(TrayManager *)
     if (!self) return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
     const char *iface  = dbus_message_get_interface(msg);

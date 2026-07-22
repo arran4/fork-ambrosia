@@ -697,19 +697,13 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     void             *conn      = _controller.trayManager.dbusConnection;
     dispatch_queue_t  dbusQueue = _controller.trayManager.dbusQueue;
 
-    #ifdef AMBROSIA_LEGACY_MRC
     id weakSelf = self;
-#else
-    __weak typeof(self) weakSelf = self;
-#endif
+    id weakSelf = self;
     [trayItem fetchMenuItemsWithConnection:conn
                                  dbusQueue:dbusQueue
                                 completion:^(NSArray<NSDictionary *> *menuItems) {
-        #ifdef AMBROSIA_LEGACY_MRC
         id strongSelf = weakSelf;
-#else
-        __strong typeof(self) strongSelf = weakSelf;
-#endif
+        id strongSelf = weakSelf;
         if (!strongSelf) return;
 
         if (menuItems.count == 0) {
