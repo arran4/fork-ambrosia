@@ -50,7 +50,7 @@ jobs:
             rm -rf /var/lib/apt/lists/*
 
             export DEBIAN_FRONTEND=noninteractive
-            apt-get update
+            apt-get -o Acquire::Check-Valid-Until=false update
 
             apt-get \
               -o APT::Get::AllowUnauthenticated=true \
