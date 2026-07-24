@@ -17,9 +17,6 @@ MenuServer_OBJC_FILES = \
 MenuServer_OBJCFLAGS  = -fno-objc-arc \
 	$(shell pkg-config --cflags dbus-1)
 
-	$(shell pkg-config --cflags dbus-1)
-
-
 MenuServer_LDFLAGS    = \
 	$(shell pkg-config --libs dbus-1)
 
