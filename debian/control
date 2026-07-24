@@ -9,7 +9,8 @@ Build-Depends:
  libgnustep-gui-dev,
  pkg-config,
  libdbus-1-dev,
- clang
+ clang,
+ libpreferencepanes-dev
 Standards-Version: 3.9.6
 
 Package: ambrosia
