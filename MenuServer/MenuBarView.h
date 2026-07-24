@@ -21,8 +21,7 @@
 @interface MenuBarView : NSView <AmbrosiaStatusItemPluginDelegate>
 
 /** Back-pointer to the controller that handles actions. */
-@property (nonatomic, assign)
-@property (nonatomic, assign)
+@property (nonatomic, assign) MenuBarController *controller;
 
 /**
  * Ordered array of right-side status item plugins (drawn right-to-left,

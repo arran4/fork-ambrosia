@@ -18,87 +18,52 @@
   BOOL loaded;
 }
 /* Compositor settings outlets */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSSlider       *transparencySlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *transparencyLabel;
+@property (nonatomic, retain) IBOutlet NSButton       *enableDecorationsCheck;
+@property (nonatomic, retain) IBOutlet NSButton       *enableBlurCheck;
+@property (nonatomic, retain) IBOutlet NSButton       *x11DecorationsCheck;
 
 /* Dock settings outlets */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSSlider       *iconSizeSlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *iconSizeLabel;
+@property (nonatomic, retain) IBOutlet NSSlider       *zoomFactorSlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *zoomFactorLabel;
+@property (nonatomic, retain) IBOutlet NSSegmentedControl *positionControl;
+@property (nonatomic, retain) IBOutlet NSButton       *autoHideCheck;
+@property (nonatomic, retain) IBOutlet NSSlider       *autoHideDelaySlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *autoHideDelayLabel;
+@property (nonatomic, retain) IBOutlet NSButton       *showRunningIndicatorCheck;
+@property (nonatomic, retain) IBOutlet NSTableView    *dockItemsTable;
+@property (nonatomic, retain) IBOutlet NSButton       *addItemButton;
+@property (nonatomic, retain) IBOutlet NSButton       *removeItemButton;
 
 /* Session settings outlets */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSTableView    *sessionItemsTable;
+@property (nonatomic, retain) IBOutlet NSButton       *addSessionItemButton;
+@property (nonatomic, retain) IBOutlet NSButton       *removeSessionItemButton;
+@property (nonatomic, retain) IBOutlet NSTableView    *startupCommandsTable;
+@property (nonatomic, retain) IBOutlet NSButton       *addStartupCommandButton;
+@property (nonatomic, retain) IBOutlet NSButton       *removeStartupCommandButton;
 
 /* Desktop settings outlets */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSTextField    *bgImagePathField;
+@property (nonatomic, retain) IBOutlet NSButton       *bgImageChooseButton;
 /* Background mode radio buttons (replaces the old rotatingCheck checkbox) */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSButton       *bgImageRadio;
+@property (nonatomic, retain) IBOutlet NSButton       *rotatingRadio;
+@property (nonatomic, retain) IBOutlet NSButton       *bg3DRadio;
 /* Rotating-mode controls */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSTextField    *bgFolderPathField;
+@property (nonatomic, retain) IBOutlet NSButton       *bgFolderChooseButton;
+@property (nonatomic, retain) IBOutlet NSSlider       *intervalSlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *intervalLabel;
 /* 3D-mode controls */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSTextField    *sceneFilePathField;
+@property (nonatomic, retain) IBOutlet NSButton       *sceneFileChooseButton;
 
 /* Tab view for switching sections */
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) IBOutlet NSTabView      *tabView;
 
 /* IBActions */
 - (IBAction)transparencyChanged:(id)sender;
@@ -131,3 +96,4 @@
 
 @end
 
+#endif /* AMBROSIA_MODULE_H */

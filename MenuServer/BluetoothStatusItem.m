@@ -142,8 +142,7 @@ static void ParseDeviceInfo(NSString *output,
     NSArray<NSDictionary *> *_devices;
     BOOL                     _btEnabled;
     NSTimer                 *_timer;
-    id
-    id
+    id                _delegate;
 }
 
 @synthesize pluginDelegate = _delegate;

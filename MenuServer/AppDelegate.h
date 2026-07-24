@@ -4,7 +4,6 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) MenuBarController *menuBarController;
 
 @end

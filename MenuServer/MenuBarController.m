@@ -485,7 +485,6 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
     id weakSelf = self;
-    id weakSelf = self;
 
     /* GNUstep does not post activate/deactivate notifications.
      * Use DidLaunchApplication as a best-effort fallback: show the app name
@@ -496,7 +495,6 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
         id strongSelf = weakSelf;
         if (!strongSelf) return;
         /* If a DO-registered app is active, it owns the bar — do not
@@ -516,7 +514,6 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
         id strongSelf = weakSelf;
         if (!strongSelf) return;
         NSNumber *pidNum = note.userInfo[@"NSApplicationProcessIdentifier"];
@@ -684,14 +681,12 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
     id weakSelf = self;
-    id weakSelf = self;
 
     _gfinderLaunchObs = [ws.notificationCenter
         addObserverForName:NSWorkspaceDidLaunchApplicationNotification
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
         id strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
@@ -709,7 +704,6 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
         id strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;

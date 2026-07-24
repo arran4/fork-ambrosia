@@ -52,8 +52,7 @@
  * Delegate set by MenuBarController so the plugin can request a bar redraw
  * after -refresh completes.
  */
-@property (nonatomic, assign)
-@property (nonatomic, assign)
+@property (nonatomic, assign) id pluginDelegate;
 
 @end
 

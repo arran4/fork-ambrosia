@@ -698,11 +698,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     dispatch_queue_t  dbusQueue = _controller.trayManager.dbusQueue;
 
     id weakSelf = self;
-    id weakSelf = self;
     [trayItem fetchMenuItemsWithConnection:conn
                                  dbusQueue:dbusQueue
                                 completion:^(NSArray<NSDictionary *> *menuItems) {
-        id strongSelf = weakSelf;
         id strongSelf = weakSelf;
         if (!strongSelf) return;
 

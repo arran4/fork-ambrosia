@@ -21,9 +21,9 @@ static const NSInteger kAutoHideDelayValues[] = { 3, 5, 10, 20, 30, 60, 120 };
 static const NSUInteger kAutoHideDelayCount   = 7;
 
 @interface AmbrosiaModule () <NSTableViewDataSource, NSTableViewDelegate>
-@property (nonatomic, retain)
-@property (nonatomic, retain)
-@property (nonatomic, retain)
+@property (nonatomic, retain) NSMutableArray<NSDictionary *> *dockItems;
+@property (nonatomic, retain) NSMutableArray<NSDictionary *> *sessionItems;
+@property (nonatomic, retain) NSMutableArray<NSString *>     *startupCommands;
 @end
 
 /* ---------------------------------------------------------------------- */
