@@ -13,9 +13,13 @@ MenuServer_OBJC_FILES = \
 	TrayItem.m \
 	TrayManager.m
 
-
-MenuServer_OBJCFLAGS  = -fno-objc-arc \
+ifeq ($(LEGACY_OBJC_RUNTIME),1)
+MenuServer_OBJCFLAGS  = -fno-objc-arc -DAMBROSIA_LEGACY_MRC=1 \
 	$(shell pkg-config --cflags dbus-1)
+else
+MenuServer_OBJCFLAGS  = -fobjc-arc \
+	$(shell pkg-config --cflags dbus-1)
+endif
 
 MenuServer_LDFLAGS    = \
 	$(shell pkg-config --libs dbus-1)

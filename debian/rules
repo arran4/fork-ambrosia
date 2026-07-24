@@ -7,11 +7,11 @@ export GNUSTEP_MAKEFILES = /usr/share/GNUstep/Makefiles
 	dh $@
 
 override_dh_auto_clean:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) distclean
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) distclean LEGACY_OBJC_RUNTIME=1
 
 override_dh_auto_build:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) CC=clang CXX=clang++ OBJC=clang
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) CC=clang CXX=clang++ OBJC=clang LEGACY_OBJC_RUNTIME=1
 
 override_dh_auto_install:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia CC=clang CXX=clang++ OBJC=clang
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia CC=clang CXX=clang++ OBJC=clang LEGACY_OBJC_RUNTIME=1
 	install -D -m 0755 ambrosia-session $(CURDIR)/debian/ambrosia/usr/bin/ambrosia-session
