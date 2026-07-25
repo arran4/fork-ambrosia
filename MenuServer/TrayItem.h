@@ -38,7 +38,7 @@
 @property (nonatomic, readonly, copy) NSString *menuPath;
 
 /** Delegate notified when properties are updated. */
-@property (nonatomic, assign) id<TrayItemDelegate> delegate;
+@property (nonatomic, weak) id<TrayItemDelegate> delegate;
 
 /**
  * Designated initialiser.

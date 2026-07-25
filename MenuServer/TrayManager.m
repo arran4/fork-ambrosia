@@ -101,7 +101,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
     /* Register StatusNotifierWatcher object path */
     if (!dbus_connection_register_object_path(_conn, kWatcherPath,
                                               &kWatcherVTable,
-                                              (void *)self)) {
+                                              (__bridge void *)self)) {
         NSLog(@"TrayManager: failed to register object path %s", kWatcherPath);
     }
 
@@ -147,7 +147,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
     if (dbus_error_is_set(&err)) dbus_error_free(&err);
 
     dbus_connection_add_filter(_conn, watcherMessageHandler,
-                               (void *)self, NULL);
+                               (__bridge void *)self, NULL);
     dbus_connection_flush(_conn);
 
     /* Replace the old blocking while-loop with a GCD timer that fires on
@@ -168,9 +168,9 @@ static const DBusObjectPathVTable kWatcherVTable = {
         20 * NSEC_PER_MSEC,   /* 20 ms interval — low latency for signals  */
         5  * NSEC_PER_MSEC);  /* 5 ms leeway                               */
 
-    id weakSelf = self;
+    __weak typeof(self) weakSelf = self;
     dispatch_source_set_event_handler(_dispatchSource, ^{
-        id strongSelf = weakSelf;
+        __strong typeof(self) strongSelf = weakSelf;
         if (!strongSelf || !strongSelf->_conn) return;
         if (!dbus_connection_get_is_connected(strongSelf->_conn)) {
             NSLog(@"TrayManager: D-Bus connection lost.");
@@ -203,7 +203,7 @@ static DBusHandlerResult watcherMessageHandler(DBusConnection *conn,
                                                DBusMessage    *msg,
                                                void           *userData)
 {
-    TrayManager *self = (TrayManager *)userData;
+    TrayManager *self = (__bridge TrayManager *)userData;
     if (!self) return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 
     const char *iface  = dbus_message_get_interface(msg);

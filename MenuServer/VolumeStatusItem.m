@@ -49,7 +49,7 @@ static void ApplyVolume(CGFloat percent)
 @implementation VolumeStatusItem {
     CGFloat  _volume;   /* 0..100 */
     NSTimer *_timer;
-    id _delegate;
+    __weak id _delegate;
 }
 
 @synthesize pluginDelegate = _delegate;

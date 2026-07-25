@@ -27,7 +27,7 @@ AmbrosiaMenus_OBJC_FILES = \
     NSMenu+AmbrosiaMenus.m
 
 
-AmbrosiaMenus_OBJCFLAGS       = -fno-objc-arc
+AmbrosiaMenus_OBJCFLAGS       = -fobjc-arc -fobjc-runtime=gnustep-2.0
 
 AmbrosiaMenus_PRINCIPAL_CLASS  = AmbrosiaMenusBundle
 

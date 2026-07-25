@@ -7,7 +7,7 @@ BUNDLE_INSTALL_DIR = $(GNUSTEP_SYSTEM_LIBRARY)/Bundles
 AmbrosiaModule_OBJC_FILES = AmbrosiaModule.m
 
 
-AmbrosiaModule_OBJCFLAGS  = -fno-objc-arc
+AmbrosiaModule_OBJCFLAGS  = -fobjc-arc -fobjc-runtime=gnustep-2.0
 
 AmbrosiaModule_PRINCIPAL_CLASS = AmbrosiaModule
 AmbrosiaModule_MAIN_MODEL_FILE = AmbrosiaModule
