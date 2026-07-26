@@ -484,7 +484,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_observeWorkspace
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    __weak typeof(self) weakSelf = self;
+    id weakSelf = self;
 
     /* GNUstep does not post activate/deactivate notifications.
      * Use DidLaunchApplication as a best-effort fallback: show the app name
@@ -495,7 +495,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        id strongSelf = weakSelf;
         if (!strongSelf) return;
         /* If a DO-registered app is active, it owns the bar — do not
          * override it with the workspace fallback.                      */
@@ -514,7 +514,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        id strongSelf = weakSelf;
         if (!strongSelf) return;
         NSNumber *pidNum = note.userInfo[@"NSApplicationProcessIdentifier"];
         int32_t   terminatedPID = pidNum ? (int32_t)[pidNum intValue] : 0;
@@ -680,14 +680,14 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_startTrackingGFinder
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    __weak typeof(self) weakSelf = self;
+    id weakSelf = self;
 
     _gfinderLaunchObs = [ws.notificationCenter
         addObserverForName:NSWorkspaceDidLaunchApplicationNotification
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        id strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
         NSString *bundleID = info[@"NSApplicationBundleIdentifier"];
@@ -704,7 +704,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        id strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
         NSString *bundleID = info[@"NSApplicationBundleIdentifier"];

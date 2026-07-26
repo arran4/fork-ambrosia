@@ -21,9 +21,9 @@ static const NSInteger kAutoHideDelayValues[] = { 3, 5, 10, 20, 30, 60, 120 };
 static const NSUInteger kAutoHideDelayCount   = 7;
 
 @interface AmbrosiaModule () <NSTableViewDataSource, NSTableViewDelegate>
-@property (nonatomic, strong) NSMutableArray<NSDictionary *> *dockItems;
-@property (nonatomic, strong) NSMutableArray<NSDictionary *> *sessionItems;
-@property (nonatomic, strong) NSMutableArray<NSString *>     *startupCommands;
+@property (nonatomic, retain) NSMutableArray *dockItems;
+@property (nonatomic, retain) NSMutableArray *sessionItems;
+@property (nonatomic, retain) NSMutableArray *startupCommands;
 @end
 
 /* ---------------------------------------------------------------------- */
@@ -358,10 +358,10 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
     /* Dock items table */
     _dockItemsTable = [[NSTableView alloc] initWithFrame:NSZeroRect];
     NSTableColumn *labelCol = [[NSTableColumn alloc] initWithIdentifier:@"label"];
-    labelCol.title = @"Name";
+    [labelCol.headerCell setStringValue:@"Name"];
     labelCol.width = 150;
     NSTableColumn *pathCol = [[NSTableColumn alloc] initWithIdentifier:@"path"];
-    pathCol.title = @"Path";
+    [pathCol.headerCell setStringValue:@"Path"];
     [_dockItemsTable setDrawsGrid:NO];
     [_dockItemsTable addTableColumn:labelCol];
     [_dockItemsTable addTableColumn:pathCol];
@@ -409,7 +409,7 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
 
     /* Checkbox column for enabled/disabled */
     NSTableColumn *enabledCol = [[NSTableColumn alloc] initWithIdentifier:@"enabled"];
-    enabledCol.title = @"Auto-start";
+    [enabledCol.headerCell setStringValue:@"Auto-start"];
     enabledCol.width = 72;
     NSButtonCell *checkCell = [[NSButtonCell alloc] init];
     [checkCell setButtonType:NSSwitchButton];
@@ -422,7 +422,7 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
     nameCol.width = 140;
 
     NSTableColumn *pathCol = [[NSTableColumn alloc] initWithIdentifier:@"sessionPath"];
-    pathCol.title = @"Path";
+    [pathCol.headerCell setStringValue:@"Path"];
 
     [_sessionItemsTable addTableColumn:enabledCol];
     [_sessionItemsTable addTableColumn:nameCol];
@@ -693,6 +693,14 @@ static NSButton *MakeRadioButton(NSString *title)
         _desktopPrefs = LoadPlist(_desktopPrefsPath);
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_dockItems release];
+    [_sessionItems release];
+    [_startupCommands release];
+    [super dealloc];
 }
 
 - (void)mainViewDidLoad

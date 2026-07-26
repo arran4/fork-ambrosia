@@ -67,13 +67,7 @@ jobs:
                 build-essential \
                 devscripts \
                 equivs \
-                ca-certificates \
-                gnustep-base-runtime \
-                gnustep-gui-runtime \
-                libgnustep-base-dev \
-                libgnustep-gui-dev \
-                libobjc-4.8-dev \
-                libobjc4
+                ca-certificates
 
             mk-build-deps -i -r \
               -t "apt-get --no-install-recommends -y \

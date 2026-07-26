@@ -113,7 +113,7 @@ static NSArray<NSDictionary *> *FetchWiFiConnections(void)
     NSArray<NSDictionary *> *_connections;
     BOOL                     _wifiEnabled;
     NSTimer                 *_timer;
-    __weak id                _delegate;
+    id                _delegate;
 }
 
 @synthesize pluginDelegate = _delegate;
