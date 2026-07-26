@@ -63,7 +63,7 @@ jobs:
             apt-get \
               -o APT::Get::AllowUnauthenticated=true \
               -o Debug::pkgProblemResolver=yes \
-              install -y --no-install-recommends \
+              install -y --no-install-recommends --force-yes \
                 build-essential \
                 devscripts \
                 equivs \
