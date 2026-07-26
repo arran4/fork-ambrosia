@@ -15,7 +15,15 @@
  */
 @interface AmbrosiaModule : NSPreferencePane
 {
-  BOOL loaded;
+    BOOL loaded;
+    NSString            *_compPrefsPath;
+    NSString            *_dockPrefsPath;
+    NSString            *_sessionPrefsPath;
+    NSString            *_desktopPrefsPath;
+    NSMutableDictionary *_compPrefs;
+    NSMutableDictionary *_dockPrefs;
+    NSMutableDictionary *_sessionPrefs;
+    NSMutableDictionary *_desktopPrefs;
 }
 /* Compositor settings outlets */
 @property (nonatomic, retain) IBOutlet NSSlider       *transparencySlider;

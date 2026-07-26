@@ -46,16 +46,8 @@ static const NSUInteger kAutoHideDelayCount   = 7;
 /* Slider width: fills from CTRL_X to the right margin, room for the value label */
 #define MV_SLD_W  (MV_TAB_W - MV_CTRL_X - MV_VAL_W - 8 - MV_MARGIN)
 
-@implementation AmbrosiaModule {
-    NSString            *_compPrefsPath;
-    NSString            *_dockPrefsPath;
-    NSString            *_sessionPrefsPath;
-    NSString            *_desktopPrefsPath;
-    NSMutableDictionary *_compPrefs;
-    NSMutableDictionary *_dockPrefs;
-    NSMutableDictionary *_sessionPrefs;
-    NSMutableDictionary *_desktopPrefs;
-}
+@implementation AmbrosiaModule
+
 
 /* ---------------------------------------------------------------------- */
 #pragma mark - Helpers
