@@ -410,7 +410,7 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
     enabledCol.dataCell   = checkCell;
 
     NSTableColumn *nameCol = [[NSTableColumn alloc] initWithIdentifier:@"name"];
-    nameCol.title = @"Name";
+    [nameCol.headerCell setStringValue:@"Name"];
     nameCol.width = 140;
 
     NSTableColumn *pathCol = [[NSTableColumn alloc] initWithIdentifier:@"sessionPath"];
