@@ -406,7 +406,7 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
     NSButtonCell *checkCell = [[NSButtonCell alloc] init];
     [checkCell setButtonType:NSSwitchButton];
     checkCell.title       = @"";
-    checkCell.controlSize = NSControlSizeSmall;
+    checkCell.controlSize = NSSmallControlSize;
     enabledCol.dataCell   = checkCell;
 
     NSTableColumn *nameCol = [[NSTableColumn alloc] initWithIdentifier:@"name"];
@@ -453,7 +453,7 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
     [_startupCommandsTable setDrawsGrid:NO];
 
     NSTableColumn *cmdCol = [[NSTableColumn alloc] initWithIdentifier:@"command"];
-    cmdCol.title    = @"Command";
+    [cmdCol.headerCell setStringValue:@"Command"];
     cmdCol.editable = YES;
     [_startupCommandsTable addTableColumn:cmdCol];
 
