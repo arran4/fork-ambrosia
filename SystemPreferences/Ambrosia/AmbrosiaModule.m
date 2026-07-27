@@ -116,8 +116,8 @@ static NSButton *MakeCheckbox(NSString *title)
 {
     NSButton *b = [[NSButton alloc] initWithFrame:NSZeroRect];
     [b setButtonType:NSSwitchButton];
-    b.title = title;
-    b.state = NSOffState;
+    [b setTitle:title];
+    b.state = NSControlStateValueOff;
     return b;
 }
 
@@ -126,7 +126,7 @@ static NSButton *MakePushButton(NSString *title)
     NSButton *b = [[NSButton alloc] initWithFrame:NSZeroRect];
     [b setButtonType:NSMomentaryPushInButton];
     b.bezelStyle = NSRoundedBezelStyle;
-    b.title      = title;
+    [b setTitle:title];
     return b;
 }
 
@@ -405,12 +405,12 @@ static NSInteger sliderPosForAutoHideDelay(NSInteger secs)
     enabledCol.width = 72;
     NSButtonCell *checkCell = [[NSButtonCell alloc] init];
     [checkCell setButtonType:NSSwitchButton];
-    checkCell.title       = @"";
-    checkCell.controlSize = NSSmallControlSize;
+    [checkCell setTitle:@""];
+    [checkCell setControlSize:NSSmallControlSize];
     enabledCol.dataCell   = checkCell;
 
     NSTableColumn *nameCol = [[NSTableColumn alloc] initWithIdentifier:@"name"];
-    nameCol.title = @"Name";
+    [nameCol.headerCell setStringValue:@"Name"];
     nameCol.width = 140;
 
     NSTableColumn *pathCol = [[NSTableColumn alloc] initWithIdentifier:@"sessionPath"];
@@ -485,8 +485,8 @@ static NSButton *MakeRadioButton(NSString *title)
 {
     NSButton *b = [[NSButton alloc] initWithFrame:NSZeroRect];
     [b setButtonType:NSRadioButton];
-    b.title = title;
-    b.state = NSOffState;
+    [b setTitle:title];
+    b.state = NSControlStateValueOff;
     return b;
 }
 
@@ -507,7 +507,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _bgImagePathField = [[NSTextField alloc] initWithFrame:
                           NSMakeRect(MV_CTRL_X, y, fW, MV_ROW_H)];
-    [[_bgImagePathField cell] setPlaceholderString:@"(none)"];
+    _bgImagePathField.placeholderString = @"(none)";
     _bgImagePathField.editable = YES;
     _bgImagePathField.autoresizingMask = NSViewWidthSizable;
     [tab addSubview:_bgImagePathField];
@@ -558,7 +558,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _bgFolderPathField = [[NSTextField alloc] initWithFrame:
                            NSMakeRect(MV_CTRL_X, y, fW, MV_ROW_H)];
-    [[_bgFolderPathField cell] setPlaceholderString:@"(none)"];
+    _bgFolderPathField.placeholderString = @"(none)";
     _bgFolderPathField.editable = YES;
     _bgFolderPathField.autoresizingMask = NSViewWidthSizable;
     [tab addSubview:_bgFolderPathField];
@@ -595,7 +595,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _sceneFilePathField = [[NSTextField alloc] initWithFrame:
                             NSMakeRect(MV_CTRL_X, y, fW, MV_ROW_H)];
-    [[_sceneFilePathField cell] setPlaceholderString:@"(path to scene.txt)"];
+    _sceneFilePathField.placeholderString = @"(path to scene.txt)";
     _sceneFilePathField.editable = YES;
     _sceneFilePathField.autoresizingMask = NSViewWidthSizable;
     [tab addSubview:_sceneFilePathField];
@@ -608,7 +608,7 @@ static NSButton *MakeRadioButton(NSString *title)
     [tab addSubview:_sceneFileChooseButton];
 
     /* Default state: Background Image mode selected */
-    _bgImageRadio.state = NSOnState;
+    _bgImageRadio.state = NSControlStateValueOn;
     [self _updateDesktopControlsForMode:@"image"];
 
     return tab;
@@ -732,38 +732,38 @@ static NSButton *MakeRadioButton(NSString *title)
     _desktopPrefs = LoadPlist(_desktopPrefsPath);
 
     /* ---- Compositor ---- */
-    CGFloat transparency = [[_compPrefs objectForKey:@"windowTransparency"] doubleValue];
+    CGFloat transparency = [_compPrefs[@"windowTransparency"] doubleValue];
     if (transparency == 0) transparency = 0.96;
     _transparencySlider.doubleValue = transparency;
 
-    BOOL decorations = [_compPrefs objectForKey:@"serverSideDecorations"]
-        ? [[_compPrefs objectForKey:@"serverSideDecorations"] boolValue] : NO;
-    _enableDecorationsCheck.state = decorations ? NSOnState : NSOffState;
+    BOOL decorations = _compPrefs[@"serverSideDecorations"]
+        ? [_compPrefs[@"serverSideDecorations"] boolValue] : NO;
+    _enableDecorationsCheck.state = decorations ? NSControlStateValueOn : NSControlStateValueOff;
 
-    BOOL blur = [[_compPrefs objectForKey:@"enableBlur"] boolValue];
-    _enableBlurCheck.state = blur ? NSOnState : NSOffState;
+    BOOL blur = [_compPrefs[@"enableBlur"] boolValue];
+    _enableBlurCheck.state = blur ? NSControlStateValueOn : NSControlStateValueOff;
 
-    BOOL x11Dec = [[_compPrefs objectForKey:@"x11Decorations"] boolValue];
-    _x11DecorationsCheck.state = x11Dec ? NSOnState : NSOffState;
+    BOOL x11Dec = [_compPrefs[@"x11Decorations"] boolValue];
+    _x11DecorationsCheck.state = x11Dec ? NSControlStateValueOn : NSControlStateValueOff;
 
     /* ---- Dock ---- */
-    CGFloat iconSize = [[_dockPrefs objectForKey:@"iconSize"] doubleValue];
+    CGFloat iconSize = [_dockPrefs[@"iconSize"] doubleValue];
     if (iconSize == 0) iconSize = 48.0;
     _iconSizeSlider.doubleValue = iconSize;
 
-    CGFloat zoom = [[_dockPrefs objectForKey:@"zoomFactor"] doubleValue];
+    CGFloat zoom = [_dockPrefs[@"zoomFactor"] doubleValue];
     if (zoom == 0) zoom = 1.7;
     _zoomFactorSlider.doubleValue = zoom;
 
-    NSString *pos = [_dockPrefs objectForKey:@"dockPosition"] ?: @"bottom";
+    NSString *pos = _dockPrefs[@"dockPosition"] ?: @"bottom";
     if ([pos isEqualToString:@"bottom"])     [_positionControl setSelectedSegment:0];
     else if ([pos isEqualToString:@"left"])  [_positionControl setSelectedSegment:1];
     else if ([pos isEqualToString:@"right"]) [_positionControl setSelectedSegment:2];
 
-    BOOL autoHide = [[_dockPrefs objectForKey:@"autoHide"] boolValue];
-    _autoHideCheck.state = autoHide ? NSOnState : NSOffState;
+    BOOL autoHide = [_dockPrefs[@"autoHide"] boolValue];
+    _autoHideCheck.state = autoHide ? NSControlStateValueOn : NSControlStateValueOff;
 
-    NSInteger autoHideDelay = [[_dockPrefs objectForKey:@"autoHideDelay"] integerValue];
+    NSInteger autoHideDelay = [_dockPrefs[@"autoHideDelay"] integerValue];
     if (autoHideDelay <= 0) autoHideDelay = 10;
     _autoHideDelaySlider.integerValue = sliderPosForAutoHideDelay(autoHideDelay);
     _autoHideDelaySlider.enabled = autoHide;
@@ -773,10 +773,10 @@ static NSButton *MakeRadioButton(NSString *title)
         ? [NSColor controlTextColor] : [NSColor disabledControlTextColor];
 
     _showRunningIndicatorCheck.state =
-        ([_dockPrefs objectForKey:@"showRunningDots"] ? [[_dockPrefs objectForKey:@"showRunningDots"] boolValue] : YES)
-        ? NSOnState : NSOffState;
+        (_dockPrefs[@"showRunningDots"] ? [_dockPrefs[@"showRunningDots"] boolValue] : YES)
+        ? NSControlStateValueOn : NSControlStateValueOff;
 
-    NSArray *rawItems = [_dockPrefs objectForKey:@"items"];
+    NSArray *rawItems = _dockPrefs[@"items"];
     _dockItems = [NSMutableArray array];
     for (NSDictionary *d in rawItems) {
         [_dockItems addObject:[d mutableCopy]];
@@ -784,14 +784,14 @@ static NSButton *MakeRadioButton(NSString *title)
     [_dockItemsTable reloadData];
 
     /* ---- Session ---- */
-    NSArray *rawSessionItems = [_sessionPrefs objectForKey:@"sessionItems"];
+    NSArray *rawSessionItems = _sessionPrefs[@"sessionItems"];
     _sessionItems = [NSMutableArray array];
     for (NSDictionary *d in rawSessionItems) {
         [_sessionItems addObject:[d mutableCopy]];
     }
     [_sessionItemsTable reloadData];
 
-    NSArray *rawCmds = [_sessionPrefs objectForKey:@"startupCommands"];
+    NSArray *rawCmds = _sessionPrefs[@"startupCommands"];
     _startupCommands = [NSMutableArray array];
     for (id cmd in rawCmds) {
         if ([cmd isKindOfClass:[NSString class]])
@@ -800,19 +800,19 @@ static NSButton *MakeRadioButton(NSString *title)
     [_startupCommandsTable reloadData];
 
     /* ---- Desktop ---- */
-    _bgImagePathField.stringValue  = [_desktopPrefs objectForKey:@"backgroundImagePath"] ?: @"";
-    _bgFolderPathField.stringValue = [_desktopPrefs objectForKey:@"rotatingImagesFolder"] ?: @"";
-    _sceneFilePathField.stringValue = [_desktopPrefs objectForKey:@"sceneFilePath"] ?: @"";
-    NSInteger secs = [[_desktopPrefs objectForKey:@"rotationInterval"] integerValue];
+    _bgImagePathField.stringValue  = _desktopPrefs[@"backgroundImagePath"] ?: @"";
+    _bgFolderPathField.stringValue = _desktopPrefs[@"rotatingImagesFolder"] ?: @"";
+    _sceneFilePathField.stringValue = _desktopPrefs[@"sceneFilePath"] ?: @"";
+    NSInteger secs = [_desktopPrefs[@"rotationInterval"] integerValue];
     if (secs <= 0) secs = 30;
     _intervalSlider.integerValue = sliderPosForInterval(secs);
     _intervalLabel.stringValue   = intervalLabel(intervalForSliderPos(_intervalSlider.integerValue));
 
     /* backgroundMode is stored in the Compositor plist */
-    NSString *mode = [_compPrefs objectForKey:@"backgroundMode"] ?: @"image";
-    _bgImageRadio.state  = [mode isEqualToString:@"image"]    ? NSOnState : NSOffState;
-    _rotatingRadio.state = [mode isEqualToString:@"rotating"] ? NSOnState : NSOffState;
-    _bg3DRadio.state     = [mode isEqualToString:@"3d"]       ? NSOnState : NSOffState;
+    NSString *mode = _compPrefs[@"backgroundMode"] ?: @"image";
+    _bgImageRadio.state  = [mode isEqualToString:@"image"]    ? NSControlStateValueOn : NSControlStateValueOff;
+    _rotatingRadio.state = [mode isEqualToString:@"rotating"] ? NSControlStateValueOn : NSControlStateValueOff;
+    _bg3DRadio.state     = [mode isEqualToString:@"3d"]       ? NSControlStateValueOn : NSControlStateValueOff;
     [self _updateDesktopControlsForMode:mode];
 }
 
@@ -858,7 +858,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
 - (IBAction)toggleAutoHide:(id)sender
 {
-    BOOL enabled = (_autoHideCheck.state == NSOnState);
+    BOOL enabled = (_autoHideCheck.state == NSControlStateValueOn);
     _autoHideDelaySlider.enabled = enabled;
     _autoHideDelayLabel.textColor = enabled
         ? [NSColor controlTextColor] : [NSColor disabledControlTextColor];
@@ -875,19 +875,23 @@ static NSButton *MakeRadioButton(NSString *title)
 - (IBAction)addDockItem:(id)sender
 {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    panel.allowedFileTypes = [NSArray arrayWithObjects:@"app", nil];
+    panel.allowedFileTypes = @[@"app"];
     panel.canChooseDirectories = YES;
     panel.canChooseFiles = NO;
-    [panel beginSheetModalForWindow:self.mainView.window ?: [NSApp mainWindow]
-                  completionHandler:^(NSModalResponse r) {
-        if (r != NSModalResponseOK) return;
-        NSString *path = panel.URL.path;
+
+    if ([panel runModal] == NSOKButton) {
+        NSString *path = [panel filename];
+        if (!path) return;
         NSBundle *b = [NSBundle bundleWithPath:path];
-        NSDictionary *entry = [NSDictionary dictionaryWithObjectsAndKeys:[[[path lastPathComponent]
-                                   stringByDeletingPathExtension] copy], @"label", [b objectForInfoDictionaryKey:@"CFBundleIdentifier"] ?: @"", @"bundleIdentifier", path, @"launchPath", @YES, @"keepInDock", nil];
+        NSDictionary *entry = [NSDictionary dictionaryWithObjectsAndKeys:
+            [[[path lastPathComponent] stringByDeletingPathExtension] copy], @"label",
+            [b objectForInfoDictionaryKey:@"CFBundleIdentifier"] ?: @"", @"bundleIdentifier",
+            path, @"launchPath",
+            @YES, @"keepInDock", nil];
         [self->_dockItems addObject:[entry mutableCopy]];
         [self->_dockItemsTable reloadData];
-    }];
+    }
+
 }
 
 - (IBAction)removeDockItem:(id)sender
@@ -904,18 +908,22 @@ static NSButton *MakeRadioButton(NSString *title)
 - (IBAction)addSessionItem:(id)sender
 {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    panel.allowedFileTypes    = [NSArray arrayWithObjects:@"app", nil];
+    panel.allowedFileTypes    = @[@"app"];
     panel.canChooseDirectories = YES;
     panel.canChooseFiles       = NO;
-    [panel beginSheetModalForWindow:self.mainView.window ?: [NSApp mainWindow]
-                  completionHandler:^(NSModalResponse r) {
-        if (r != NSModalResponseOK) return;
-        NSString *path = panel.URL.path;
+
+    if ([panel runModal] == NSOKButton) {
+        NSString *path = [panel filename];
+        if (!path) return;
         NSString *name = [[path lastPathComponent] stringByDeletingPathExtension];
-        NSDictionary *entry = [NSDictionary dictionaryWithObjectsAndKeys:name, @"name", path, @"path", @YES, @"enabled", nil];
+        NSDictionary *entry = [NSDictionary dictionaryWithObjectsAndKeys:
+            name, @"name",
+            path, @"path",
+            @YES, @"enabled", nil];
         [self->_sessionItems addObject:[entry mutableCopy]];
         [self->_sessionItemsTable reloadData];
-    }];
+    }
+
 }
 
 - (IBAction)removeSessionItem:(id)sender
@@ -974,45 +982,45 @@ static NSButton *MakeRadioButton(NSString *title)
 
 - (NSString *)_selectedBackgroundMode
 {
-    if (_rotatingRadio.state == NSOnState) return @"rotating";
-    if (_bg3DRadio.state     == NSOnState) return @"3d";
+    if (_rotatingRadio.state == NSControlStateValueOn) return @"rotating";
+    if (_bg3DRadio.state     == NSControlStateValueOn) return @"3d";
     return @"image";
 }
 
 - (IBAction)chooseBgImage:(id)sender
 {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    panel.allowedFileTypes   = [NSArray arrayWithObjects:@"png", @"jpg", @"jpeg", nil];
+    panel.allowedFileTypes   = @[@"png", @"jpg", @"jpeg"];
     panel.canChooseFiles     = YES;
     panel.canChooseDirectories = NO;
-    [panel beginSheetModalForWindow:self.mainView.window ?: [NSApp mainWindow]
-                  completionHandler:^(NSModalResponse r) {
-        if (r != NSModalResponseOK) return;
-        self->_bgImagePathField.stringValue = panel.URL.path ?: @"";
-    }];
+
+    if ([panel runModal] == NSOKButton) {
+        self->_bgImagePathField.stringValue = [panel filename] ?: @"";
+    }
+
 }
 
 - (IBAction)backgroundModeChanged:(id)sender
 {
     /* Enforce radio-button mutual exclusion and update dependent controls */
-    _bgImageRadio.state  = (sender == _bgImageRadio)  ? NSOnState : NSOffState;
-    _rotatingRadio.state = (sender == _rotatingRadio) ? NSOnState : NSOffState;
-    _bg3DRadio.state     = (sender == _bg3DRadio)     ? NSOnState : NSOffState;
+    _bgImageRadio.state  = (sender == _bgImageRadio)  ? NSControlStateValueOn : NSControlStateValueOff;
+    _rotatingRadio.state = (sender == _rotatingRadio) ? NSControlStateValueOn : NSControlStateValueOff;
+    _bg3DRadio.state     = (sender == _bg3DRadio)     ? NSControlStateValueOn : NSControlStateValueOff;
     [self _updateDesktopControlsForMode:[self _selectedBackgroundMode]];
 }
 
 - (IBAction)chooseSceneFile:(id)sender
 {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    panel.allowedFileTypes   = [NSArray arrayWithObjects:@"txt", nil];
+    panel.allowedFileTypes   = @[@"txt"];
     panel.canChooseFiles     = YES;
     panel.canChooseDirectories = NO;
     panel.message            = @"Select a scene.txt file for the 3D Desktop Background";
-    [panel beginSheetModalForWindow:self.mainView.window ?: [NSApp mainWindow]
-                  completionHandler:^(NSModalResponse r) {
-        if (r != NSModalResponseOK) return;
-        self->_sceneFilePathField.stringValue = panel.URL.path ?: @"";
-    }];
+
+    if ([panel runModal] == NSOKButton) {
+        self->_sceneFilePathField.stringValue = [panel filename] ?: @"";
+    }
+
 }
 
 - (IBAction)chooseBgFolder:(id)sender
@@ -1021,11 +1029,11 @@ static NSButton *MakeRadioButton(NSString *title)
     panel.canChooseFiles        = NO;
     panel.canChooseDirectories  = YES;
     panel.canCreateDirectories  = NO;
-    [panel beginSheetModalForWindow:self.mainView.window ?: [NSApp mainWindow]
-                  completionHandler:^(NSModalResponse r) {
-        if (r != NSModalResponseOK) return;
-        self->_bgFolderPathField.stringValue = panel.URL.path ?: @"";
-    }];
+
+    if ([panel runModal] == NSOKButton) {
+        self->_bgFolderPathField.stringValue = [panel filename] ?: @"";
+    }
+
 }
 
 - (IBAction)intervalChanged:(id)sender
@@ -1065,7 +1073,22 @@ static NSButton *MakeRadioButton(NSString *title)
     if (isMilk) {
         /* Exact values from Milk+Drawings.m _windowTitlebarGradient
          * and Milk.m controlStrokeColor / ThemeColors windowBackgroundColor. */
-        return [NSDictionary dictionaryWithObjectsAndKeys:@"FFFFFFFF", @"titlebarGradientTopColor", @"DCDCDEFF", @"titlebarGradientBottomColor", @"F0F0F0FF", @"titlebarInactiveTopColor", @"E0E0E0FF", @"titlebarInactiveBottomColor", @"666666FF", @"titlebarSeparatorColor", @"666666FF", @"windowBorderColor", @"DCDCDCFF", @"windowBodyColor", @"D9D9D9FF", @"buttonActiveColor", @"B8B8B8B3", @"buttonInactiveColor", nil];
+        return @{
+            /* Active gradient: white → (0.863, 0.863, 0.871) */
+            @"titlebarGradientTopColor":    @"FFFFFFFF",
+            @"titlebarGradientBottomColor": @"DCDCDEFF",
+            /* Inactive: subtle neutral grey fade */
+            @"titlebarInactiveTopColor":    @"F0F0F0FF",
+            @"titlebarInactiveBottomColor": @"E0E0E0FF",
+            /* controlStrokeColor = (0.4, 0.4, 0.4) */
+            @"titlebarSeparatorColor":      @"666666FF",
+            @"windowBorderColor":           @"666666FF",
+            /* windowBackgroundColor ≈ (0.863, 0.863, 0.863) */
+            @"windowBodyColor":             @"DCDCDCFF",
+            /* Standard bezel button colours — no colour coding in Milk */
+            @"buttonActiveColor":           @"D9D9D9FF",
+            @"buttonInactiveColor":         @"B8B8B8B3",
+        };
     }
 
     /* --- Generic fallback: derive from current theme's named colours --- */
@@ -1088,7 +1111,17 @@ static NSButton *MakeRadioButton(NSString *title)
     NSColor *btnA  = [bgColor shadowWithLevel:0.10f] ?: bgColor;
     NSColor *btnI  = [bgColor shadowWithLevel:0.25f] ?: bgColor;
 
-    return [NSDictionary dictionaryWithObjectsAndKeys:[self hexStringFromColor:gradTop], @"titlebarGradientTopColor", [self hexStringFromColor:gradBot], @"titlebarGradientBottomColor", [self hexStringFromColor:gradTopI], @"titlebarInactiveTopColor", [self hexStringFromColor:gradBotI], @"titlebarInactiveBottomColor", [self hexStringFromColor:shColor], @"titlebarSeparatorColor", [self hexStringFromColor:shColor], @"windowBorderColor", [self hexStringFromColor:bgColor], @"windowBodyColor", [self hexStringFromColor:btnA], @"buttonActiveColor", [self hexStringFromColor:btnI], @"buttonInactiveColor", nil];
+    return @{
+        @"titlebarGradientTopColor":    [self hexStringFromColor:gradTop],
+        @"titlebarGradientBottomColor": [self hexStringFromColor:gradBot],
+        @"titlebarInactiveTopColor":    [self hexStringFromColor:gradTopI],
+        @"titlebarInactiveBottomColor": [self hexStringFromColor:gradBotI],
+        @"titlebarSeparatorColor":      [self hexStringFromColor:shColor],
+        @"windowBorderColor":           [self hexStringFromColor:shColor],
+        @"windowBodyColor":             [self hexStringFromColor:bgColor],
+        @"buttonActiveColor":           [self hexStringFromColor:btnA],
+        @"buttonInactiveColor":         [self hexStringFromColor:btnI],
+    };
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1100,11 +1133,11 @@ static NSButton *MakeRadioButton(NSString *title)
     NSString *bgMode = [self _selectedBackgroundMode];
 
     /* ---- Compositor ---- */
-    BOOL x11Dec = (_x11DecorationsCheck.state == NSOnState);
-    [_compPrefs setObject:@(_transparencySlider.doubleValue) forKey:@"windowTransparency"];
-    [_compPrefs setObject:@(_enableDecorationsCheck.state == NSOnState) forKey:@"serverSideDecorations"];
-    [_compPrefs setObject:@(_enableBlurCheck.state == NSOnState) forKey:@"enableBlur"];
-    [_compPrefs setObject:@(x11Dec) forKey:@"x11Decorations"];
+    BOOL x11Dec = (_x11DecorationsCheck.state == NSControlStateValueOn);
+    _compPrefs[@"windowTransparency"]    = @(_transparencySlider.doubleValue);
+    _compPrefs[@"serverSideDecorations"] = @(_enableDecorationsCheck.state == NSControlStateValueOn);
+    _compPrefs[@"enableBlur"]            = @(_enableBlurCheck.state == NSControlStateValueOn);
+    _compPrefs[@"x11Decorations"]        = @(x11Dec);
 
     /* When X11 decorations are enabled, bake in the current GNUstep theme
      * colours so the compositor can draw them without needing AppKit.     */
@@ -1122,17 +1155,24 @@ static NSButton *MakeRadioButton(NSString *title)
         case 2:  pos = @"right"; break;
         default: pos = @"bottom"; break;
     }
-    [_dockPrefs setObject:@(_iconSizeSlider.doubleValue) forKey:@"iconSize"];
-    [_dockPrefs setObject:@(_zoomFactorSlider.doubleValue) forKey:@"zoomFactor"];
-    [_dockPrefs setObject:pos forKey:@"dockPosition"];
-    [_dockPrefs setObject:@(_autoHideCheck.state == NSOnState) forKey:@"autoHide"];
-    [_dockPrefs setObject:@(autoHideDelayForSliderPos(_autoHideDelaySlider.integerValue)) forKey:@"autoHideDelay"];
-    [_dockPrefs setObject:@(_showRunningIndicatorCheck.state == NSOnState) forKey:@"showRunningDots"];
-    [_dockPrefs setObject:[_dockItems copy] forKey:@"items"];
+    _dockPrefs[@"iconSize"]        = @(_iconSizeSlider.doubleValue);
+    _dockPrefs[@"zoomFactor"]      = @(_zoomFactorSlider.doubleValue);
+    _dockPrefs[@"dockPosition"]    = pos;
+    _dockPrefs[@"autoHide"]        = @(_autoHideCheck.state == NSControlStateValueOn);
+    _dockPrefs[@"autoHideDelay"]   = @(autoHideDelayForSliderPos(_autoHideDelaySlider.integerValue));
+    _dockPrefs[@"showRunningDots"] = @(_showRunningIndicatorCheck.state == NSControlStateValueOn);
+    _dockPrefs[@"items"]           = [_dockItems copy];
     SavePlist(_dockPrefs, _dockPrefsPath);
 
     /* Broadcast changes */
-    NSDictionary *dockNotif = [NSDictionary dictionaryWithObjectsAndKeys:[_dockPrefs objectForKey:@"iconSize"], @"iconSize", [_dockPrefs objectForKey:@"zoomFactor"], @"zoomFactor", pos, @"dockPosition", [_dockPrefs objectForKey:@"autoHide"], @"autoHide", [_dockPrefs objectForKey:@"autoHideDelay"], @"autoHideDelay", [_dockPrefs objectForKey:@"showRunningDots"], @"showRunningDots", nil];
+    NSDictionary *dockNotif = @{
+        @"iconSize":        _dockPrefs[@"iconSize"],
+        @"zoomFactor":      _dockPrefs[@"zoomFactor"],
+        @"dockPosition":    pos,
+        @"autoHide":        _dockPrefs[@"autoHide"],
+        @"autoHideDelay":   _dockPrefs[@"autoHideDelay"],
+        @"showRunningDots": _dockPrefs[@"showRunningDots"],
+    };
     [[NSDistributedNotificationCenter defaultCenter]
      postNotificationName:kDockPrefsChanged
                    object:nil
@@ -1140,8 +1180,14 @@ static NSButton *MakeRadioButton(NSString *title)
      deliverImmediately:YES];
 
     /* Build compositor notification — include all keys the compositor reads. */
-    NSMutableDictionary *compNotif = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-        [_compPrefs objectForKey:@"windowTransparency"], @"windowTransparency", [_compPrefs objectForKey:@"serverSideDecorations"], @"serverSideDecorations", [_compPrefs objectForKey:@"enableBlur"], @"enableBlur", [_compPrefs objectForKey:@"x11Decorations"] ?: @NO, @"x11Decorations", bgMode, @"backgroundMode", [_desktopPrefs objectForKey:@"sceneFilePath"] ?: @"", @"sceneFilePath", nil];
+    NSMutableDictionary *compNotif = [@{
+        @"windowTransparency":    _compPrefs[@"windowTransparency"],
+        @"serverSideDecorations": _compPrefs[@"serverSideDecorations"],
+        @"enableBlur":            _compPrefs[@"enableBlur"],
+        @"x11Decorations":        _compPrefs[@"x11Decorations"] ?: @NO,
+        @"backgroundMode":        bgMode,
+        @"sceneFilePath":         _desktopPrefs[@"sceneFilePath"] ?: @"",
+    } mutableCopy];
     /* Propagate all theme colour keys recognised by AmbrosiaDecoration */
     NSSet *colorKeys = [NSSet setWithObjects:
         @"titlebarGradientTopColor", @"titlebarGradientBottomColor",
@@ -1158,28 +1204,31 @@ static NSButton *MakeRadioButton(NSString *title)
      deliverImmediately:YES];
 
     /* ---- Session ---- */
-    [_sessionPrefs setObject:[_sessionItems copy] forKey:@"sessionItems"];
-    [_sessionPrefs setObject:[_startupCommands copy] forKey:@"startupCommands"];
+    _sessionPrefs[@"sessionItems"]    = [_sessionItems copy];
+    _sessionPrefs[@"startupCommands"] = [_startupCommands copy];
     SavePlist(_sessionPrefs, _sessionPrefsPath);
 
     [[NSDistributedNotificationCenter defaultCenter]
      postNotificationName:kSessionPrefsChanged
                    object:nil
-                 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[_sessionPrefs objectForKey:@"sessionItems"]    ?: [NSArray array], @"sessionItems", [_sessionPrefs objectForKey:@"startupCommands"] ?: [NSArray array], @"startupCommands", nil]
+                 userInfo:@{
+                     @"sessionItems":    _sessionPrefs[@"sessionItems"]    ?: @[],
+                     @"startupCommands": _sessionPrefs[@"startupCommands"] ?: @[],
+                 }
      deliverImmediately:YES];
 
     /* ---- Desktop ---- */
     NSInteger sliderPos   = _intervalSlider.integerValue;
     NSInteger intervalSec = intervalForSliderPos(sliderPos);
 
-    [_desktopPrefs setObject:[_bgImagePathField.stringValue copy] ?: @"" forKey:@"backgroundImagePath"];
-    [_desktopPrefs setObject:[_bgFolderPathField.stringValue copy] ?: @"" forKey:@"rotatingImagesFolder"];
-    [_desktopPrefs setObject:@(intervalSec) forKey:@"rotationInterval"];
-    [_desktopPrefs setObject:[_sceneFilePathField.stringValue copy] ?: @"" forKey:@"sceneFilePath"];
+    _desktopPrefs[@"backgroundImagePath"]   = [_bgImagePathField.stringValue copy] ?: @"";
+    _desktopPrefs[@"rotatingImagesFolder"]  = [_bgFolderPathField.stringValue copy] ?: @"";
+    _desktopPrefs[@"rotationInterval"]      = @(intervalSec);
+    _desktopPrefs[@"sceneFilePath"]         = [_sceneFilePathField.stringValue copy] ?: @"";
     SavePlist(_desktopPrefs, _desktopPrefsPath);
 
     /* backgroundMode is written to the Compositor plist */
-    [_compPrefs setObject:bgMode forKey:@"backgroundMode"];
+    _compPrefs[@"backgroundMode"] = bgMode;
     SavePlist(_compPrefs, _compPrefsPath);
 
     [[NSDistributedNotificationCenter defaultCenter]
@@ -1212,17 +1261,17 @@ objectValueForTableColumn:(NSTableColumn *)col
     if (tv == _sessionItemsTable) {
         NSDictionary *item = _sessionItems[row];
         if ([col.identifier isEqualToString:@"enabled"])
-            return @([[item objectForKey:@"enabled"] boolValue] ? NSOnState : NSOffState);
-        if ([col.identifier isEqualToString:@"name"])        return [item objectForKey:@"name"];
-        if ([col.identifier isEqualToString:@"sessionPath"]) return [item objectForKey:@"path"];
+            return @([item[@"enabled"] boolValue] ? NSControlStateValueOn : NSControlStateValueOff);
+        if ([col.identifier isEqualToString:@"name"])        return item[@"name"];
+        if ([col.identifier isEqualToString:@"sessionPath"]) return item[@"path"];
         return @"";
     }
     if (tv == _startupCommandsTable) {
         return _startupCommands[(NSUInteger)row];
     }
     NSDictionary *item = _dockItems[row];
-    if ([col.identifier isEqualToString:@"label"]) return [item objectForKey:@"label"];
-    if ([col.identifier isEqualToString:@"path"])  return [item objectForKey:@"launchPath"];
+    if ([col.identifier isEqualToString:@"label"]) return item[@"label"];
+    if ([col.identifier isEqualToString:@"path"])  return item[@"launchPath"];
     return @"";
 }
 
@@ -1234,9 +1283,9 @@ objectValueForTableColumn:(NSTableColumn *)col
     if (tv == _sessionItemsTable) {
         NSMutableDictionary *item = (NSMutableDictionary *)_sessionItems[row];
         if ([col.identifier isEqualToString:@"enabled"])
-            [item setObject:@([obj intValue] == NSOnState) forKey:@"enabled"];
+            item[@"enabled"] = @([obj intValue] == NSControlStateValueOn);
         else if ([col.identifier isEqualToString:@"name"])
-            [item setObject:obj forKey:@"name"];
+            item[@"name"] = obj;
         return;
     }
     if (tv == _startupCommandsTable) {
@@ -1244,7 +1293,7 @@ objectValueForTableColumn:(NSTableColumn *)col
         return;
     }
     NSMutableDictionary *item = (NSMutableDictionary *)_dockItems[row];
-    if ([col.identifier isEqualToString:@"label"]) [item setObject:obj forKey:@"label"];
+    if ([col.identifier isEqualToString:@"label"]) item[@"label"] = obj;
 }
 
 /* ---------------------------------------------------------------------- */

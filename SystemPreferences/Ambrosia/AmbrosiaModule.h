@@ -15,7 +15,18 @@
  */
 @interface AmbrosiaModule : NSPreferencePane
 {
-  BOOL loaded;
+    BOOL loaded;
+    NSString            *_compPrefsPath;
+    NSString            *_dockPrefsPath;
+    NSString            *_sessionPrefsPath;
+    NSString            *_desktopPrefsPath;
+    NSMutableDictionary *_compPrefs;
+    NSMutableDictionary *_dockPrefs;
+    NSMutableDictionary *_sessionPrefs;
+    NSMutableDictionary *_desktopPrefs;
+    NSMutableArray      *_dockItems;
+    NSMutableArray      *_sessionItems;
+    NSMutableArray      *_startupCommands;
     NSSlider       *_transparencySlider;
     NSTextField    *_transparencyLabel;
     NSButton       *_enableDecorationsCheck;
@@ -51,17 +62,6 @@
     NSTextField    *_sceneFilePathField;
     NSButton       *_sceneFileChooseButton;
     NSTabView      *_tabView;
-    NSString            *_compPrefsPath;
-    NSString            *_dockPrefsPath;
-    NSString            *_sessionPrefsPath;
-    NSString            *_desktopPrefsPath;
-    NSMutableDictionary *_compPrefs;
-    NSMutableDictionary *_dockPrefs;
-    NSMutableDictionary *_sessionPrefs;
-    NSMutableDictionary *_desktopPrefs;
-    NSMutableArray      *_dockItems;
-    NSMutableArray      *_sessionItems;
-    NSMutableArray      *_startupCommands;
 }
 /* Compositor settings outlets */
 @property (nonatomic, retain) IBOutlet NSSlider       *transparencySlider;
