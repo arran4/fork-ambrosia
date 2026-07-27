@@ -14,4 +14,3 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia CC=clang CXX=clang++ OBJC=clang
-	install -D -m 0755 ambrosia-session $(CURDIR)/debian/ambrosia/usr/bin/ambrosia-session
