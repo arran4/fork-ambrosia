@@ -24,6 +24,9 @@
     NSMutableDictionary *_dockPrefs;
     NSMutableDictionary *_sessionPrefs;
     NSMutableDictionary *_desktopPrefs;
+    NSMutableArray      *_dockItems;
+    NSMutableArray      *_sessionItems;
+    NSMutableArray      *_startupCommands;
     NSSlider       *_transparencySlider;
     NSTextField    *_transparencyLabel;
     NSButton       *_enableDecorationsCheck;
