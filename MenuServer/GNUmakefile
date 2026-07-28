@@ -13,7 +13,7 @@ MenuServer_OBJC_FILES = \
 	TrayItem.m \
 	TrayManager.m
 
-MenuServer_OBJCFLAGS  = -fno-objc-arc -fblocks \
+MenuServer_OBJCFLAGS  = -fno-objc-arc -fblocks -I$(CURDIR)/.. \
 	$(shell pkg-config --cflags dbus-1)
 
 MenuServer_LDFLAGS    = \

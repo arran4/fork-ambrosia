@@ -1,4 +1,5 @@
 include $(GNUSTEP_MAKEFILES)/common.make
+ADDITIONAL_OBJCFLAGS += -I$(CURDIR)/../..
 
 BUNDLE_NAME     = AmbrosiaModule
 BUNDLE_EXTENSION = .prefPane

@@ -31,4 +31,4 @@ AmbrosiaMenus_OBJC_FILES = \
 AmbrosiaMenus_PRINCIPAL_CLASS  = AmbrosiaMenusBundle
 
 include $(GNUSTEP_MAKEFILES)/bundle.make
-ADDITIONAL_OBJCFLAGS += -fblocks
+ADDITIONAL_OBJCFLAGS += -fblocks -I$(CURDIR)/..
