@@ -47,6 +47,78 @@ static const NSUInteger kAutoHideDelayCount   = 7;
 #define MV_SLD_W  (MV_TAB_W - MV_CTRL_X - MV_VAL_W - 8 - MV_MARGIN)
 
 @implementation AmbrosiaModule
+@synthesize transparencySlider = _transparencySlider;
+@synthesize transparencyLabel = _transparencyLabel;
+@synthesize enableDecorationsCheck = _enableDecorationsCheck;
+@synthesize enableBlurCheck = _enableBlurCheck;
+@synthesize x11DecorationsCheck = _x11DecorationsCheck;
+@synthesize iconSizeSlider = _iconSizeSlider;
+@synthesize iconSizeLabel = _iconSizeLabel;
+@synthesize zoomFactorSlider = _zoomFactorSlider;
+@synthesize zoomFactorLabel = _zoomFactorLabel;
+@synthesize positionControl = _positionControl;
+@synthesize autoHideCheck = _autoHideCheck;
+@synthesize autoHideDelaySlider = _autoHideDelaySlider;
+@synthesize autoHideDelayLabel = _autoHideDelayLabel;
+@synthesize showRunningIndicatorCheck = _showRunningIndicatorCheck;
+@synthesize dockItemsTable = _dockItemsTable;
+@synthesize addItemButton = _addItemButton;
+@synthesize removeItemButton = _removeItemButton;
+@synthesize sessionItemsTable = _sessionItemsTable;
+@synthesize addSessionItemButton = _addSessionItemButton;
+@synthesize removeSessionItemButton = _removeSessionItemButton;
+@synthesize startupCommandsTable = _startupCommandsTable;
+@synthesize addStartupCommandButton = _addStartupCommandButton;
+@synthesize removeStartupCommandButton = _removeStartupCommandButton;
+@synthesize bgImagePathField = _bgImagePathField;
+@synthesize bgImageChooseButton = _bgImageChooseButton;
+@synthesize bgImageRadio = _bgImageRadio;
+@synthesize rotatingRadio = _rotatingRadio;
+@synthesize bg3DRadio = _bg3DRadio;
+@synthesize bgFolderPathField = _bgFolderPathField;
+@synthesize bgFolderChooseButton = _bgFolderChooseButton;
+@synthesize intervalSlider = _intervalSlider;
+@synthesize intervalLabel = _intervalLabel;
+@synthesize sceneFilePathField = _sceneFilePathField;
+@synthesize sceneFileChooseButton = _sceneFileChooseButton;
+@synthesize tabView = _tabView;
+
+
+@synthesize transparencySlider = _transparencySlider;
+@synthesize transparencyLabel = _transparencyLabel;
+@synthesize enableDecorationsCheck = _enableDecorationsCheck;
+@synthesize enableBlurCheck = _enableBlurCheck;
+@synthesize x11DecorationsCheck = _x11DecorationsCheck;
+@synthesize iconSizeSlider = _iconSizeSlider;
+@synthesize iconSizeLabel = _iconSizeLabel;
+@synthesize zoomFactorSlider = _zoomFactorSlider;
+@synthesize zoomFactorLabel = _zoomFactorLabel;
+@synthesize positionControl = _positionControl;
+@synthesize autoHideCheck = _autoHideCheck;
+@synthesize autoHideDelaySlider = _autoHideDelaySlider;
+@synthesize autoHideDelayLabel = _autoHideDelayLabel;
+@synthesize showRunningIndicatorCheck = _showRunningIndicatorCheck;
+@synthesize dockItemsTable = _dockItemsTable;
+@synthesize addItemButton = _addItemButton;
+@synthesize removeItemButton = _removeItemButton;
+@synthesize sessionItemsTable = _sessionItemsTable;
+@synthesize addSessionItemButton = _addSessionItemButton;
+@synthesize removeSessionItemButton = _removeSessionItemButton;
+@synthesize startupCommandsTable = _startupCommandsTable;
+@synthesize addStartupCommandButton = _addStartupCommandButton;
+@synthesize removeStartupCommandButton = _removeStartupCommandButton;
+@synthesize bgImagePathField = _bgImagePathField;
+@synthesize bgImageChooseButton = _bgImageChooseButton;
+@synthesize bgImageRadio = _bgImageRadio;
+@synthesize rotatingRadio = _rotatingRadio;
+@synthesize bg3DRadio = _bg3DRadio;
+@synthesize bgFolderPathField = _bgFolderPathField;
+@synthesize bgFolderChooseButton = _bgFolderChooseButton;
+@synthesize intervalSlider = _intervalSlider;
+@synthesize intervalLabel = _intervalLabel;
+@synthesize sceneFilePathField = _sceneFilePathField;
+@synthesize sceneFileChooseButton = _sceneFileChooseButton;
+@synthesize tabView = _tabView;
 
 
 /* ---------------------------------------------------------------------- */
@@ -887,7 +959,7 @@ static NSButton *MakeRadioButton(NSString *title)
             [[[path lastPathComponent] stringByDeletingPathExtension] copy], @"label",
             [b objectForInfoDictionaryKey:@"CFBundleIdentifier"] ?: @"", @"bundleIdentifier",
             path, @"launchPath",
-            @YES, @"keepInDock", nil];
+            [NSNumber numberWithBool:YES], @"keepInDock", nil];
         [self->_dockItems addObject:[entry mutableCopy]];
         [self->_dockItemsTable reloadData];
     }
@@ -919,7 +991,7 @@ static NSButton *MakeRadioButton(NSString *title)
         NSDictionary *entry = [NSDictionary dictionaryWithObjectsAndKeys:
             name, @"name",
             path, @"path",
-            @YES, @"enabled", nil];
+            [NSNumber numberWithBool:YES], @"enabled", nil];
         [self->_sessionItems addObject:[entry mutableCopy]];
         [self->_sessionItemsTable reloadData];
     }
@@ -1148,7 +1220,7 @@ static NSButton *MakeRadioButton(NSString *title)
      deliverImmediately:YES];
 
     /* Build compositor notification — include all keys the compositor reads. */
-    NSMutableDictionary *compNotif = [[NSDictionary dictionaryWithObjectsAndKeys:[_compPrefs objectForKey:@"windowTransparency"], @"windowTransparency", [_compPrefs objectForKey:@"serverSideDecorations"], @"serverSideDecorations", [_compPrefs objectForKey:@"enableBlur"], @"enableBlur", [_compPrefs objectForKey:@"x11Decorations"] ?: @NO, @"x11Decorations", bgMode, @"backgroundMode", [_desktopPrefs objectForKey:@"sceneFilePath"] ?: @"", @"sceneFilePath", nil] mutableCopy];
+    NSMutableDictionary *compNotif = [[NSDictionary dictionaryWithObjectsAndKeys:[_compPrefs objectForKey:@"windowTransparency"], @"windowTransparency", [_compPrefs objectForKey:@"serverSideDecorations"], @"serverSideDecorations", [_compPrefs objectForKey:@"enableBlur"], @"enableBlur", [_compPrefs objectForKey:@"x11Decorations"] ?: [NSNumber numberWithBool:NO], @"x11Decorations", bgMode, @"backgroundMode", [_desktopPrefs objectForKey:@"sceneFilePath"] ?: @"", @"sceneFilePath", nil] mutableCopy];
     /* Propagate all theme colour keys recognised by AmbrosiaDecoration */
     NSSet *colorKeys = [NSSet setWithObjects:
         @"titlebarGradientTopColor", @"titlebarGradientBottomColor",
@@ -1156,7 +1228,7 @@ static NSButton *MakeRadioButton(NSString *title)
         @"titlebarSeparatorColor",   @"windowBorderColor",
         @"windowBodyColor",          @"buttonActiveColor", @"buttonInactiveColor", nil];
     for (NSString *key in colorKeys) {
-        if (_compPrefs[key]) compNotif[key] = _compPrefs[key];
+        if (_compPrefs[key]) [compNotif setObject:[_compPrefs objectForKey:key] forKey:key];
     }
     [[NSDistributedNotificationCenter defaultCenter]
      postNotificationName:kCompPrefsChanged
@@ -1217,7 +1289,7 @@ objectValueForTableColumn:(NSTableColumn *)col
             row:(NSInteger)row
 {
     if (tv == _sessionItemsTable) {
-        NSDictionary *item = _sessionItems[row];
+        NSDictionary *item = [_sessionItems objectAtIndex:row];
         if ([col.identifier isEqualToString:@"enabled"])
             return @([[item objectForKey:@"enabled"] boolValue] ? NSOnState : NSOffState);
         if ([col.identifier isEqualToString:@"name"])        return [item objectForKey:@"name"];
@@ -1225,7 +1297,7 @@ objectValueForTableColumn:(NSTableColumn *)col
         return @"";
     }
     if (tv == _startupCommandsTable) {
-        return _startupCommands[(NSUInteger)row];
+        return [_startupCommands objectAtIndex:(NSUInteger)row];
     }
     NSDictionary *item = _dockItems[row];
     if ([col.identifier isEqualToString:@"label"]) return [item objectForKey:@"label"];
@@ -1239,7 +1311,7 @@ objectValueForTableColumn:(NSTableColumn *)col
               row:(NSInteger)row
 {
     if (tv == _sessionItemsTable) {
-        NSMutableDictionary *item = (NSMutableDictionary *)_sessionItems[row];
+        NSMutableDictionary *item = (NSMutableDictionary *)[_sessionItems objectAtIndex:row];
         if ([col.identifier isEqualToString:@"enabled"])
             [item setObject:@([obj intValue] == NSOnState) forKey:@"enabled"];
         else if ([col.identifier isEqualToString:@"name"])
