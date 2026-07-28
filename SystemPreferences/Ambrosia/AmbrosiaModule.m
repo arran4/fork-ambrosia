@@ -84,43 +84,6 @@ static const NSUInteger kAutoHideDelayCount   = 7;
 @synthesize tabView = _tabView;
 
 
-@synthesize transparencySlider = _transparencySlider;
-@synthesize transparencyLabel = _transparencyLabel;
-@synthesize enableDecorationsCheck = _enableDecorationsCheck;
-@synthesize enableBlurCheck = _enableBlurCheck;
-@synthesize x11DecorationsCheck = _x11DecorationsCheck;
-@synthesize iconSizeSlider = _iconSizeSlider;
-@synthesize iconSizeLabel = _iconSizeLabel;
-@synthesize zoomFactorSlider = _zoomFactorSlider;
-@synthesize zoomFactorLabel = _zoomFactorLabel;
-@synthesize positionControl = _positionControl;
-@synthesize autoHideCheck = _autoHideCheck;
-@synthesize autoHideDelaySlider = _autoHideDelaySlider;
-@synthesize autoHideDelayLabel = _autoHideDelayLabel;
-@synthesize showRunningIndicatorCheck = _showRunningIndicatorCheck;
-@synthesize dockItemsTable = _dockItemsTable;
-@synthesize addItemButton = _addItemButton;
-@synthesize removeItemButton = _removeItemButton;
-@synthesize sessionItemsTable = _sessionItemsTable;
-@synthesize addSessionItemButton = _addSessionItemButton;
-@synthesize removeSessionItemButton = _removeSessionItemButton;
-@synthesize startupCommandsTable = _startupCommandsTable;
-@synthesize addStartupCommandButton = _addStartupCommandButton;
-@synthesize removeStartupCommandButton = _removeStartupCommandButton;
-@synthesize bgImagePathField = _bgImagePathField;
-@synthesize bgImageChooseButton = _bgImageChooseButton;
-@synthesize bgImageRadio = _bgImageRadio;
-@synthesize rotatingRadio = _rotatingRadio;
-@synthesize bg3DRadio = _bg3DRadio;
-@synthesize bgFolderPathField = _bgFolderPathField;
-@synthesize bgFolderChooseButton = _bgFolderChooseButton;
-@synthesize intervalSlider = _intervalSlider;
-@synthesize intervalLabel = _intervalLabel;
-@synthesize sceneFilePathField = _sceneFilePathField;
-@synthesize sceneFileChooseButton = _sceneFileChooseButton;
-@synthesize tabView = _tabView;
-
-
 /* ---------------------------------------------------------------------- */
 #pragma mark - Helpers
 
@@ -135,7 +98,7 @@ static NSString *PrefsDirectory(void)
     }
     NSArray *dirs = NSSearchPathForDirectoriesInDomains(
         NSLibraryDirectory, NSUserDomainMask, YES);
-    NSString *lib = dirs.firstObject ?: NSHomeDirectory();
+    NSString *lib = [dirs count] > 0 ? [dirs objectAtIndex:0] : NSHomeDirectory();
     return [lib stringByAppendingPathComponent:@"Preferences"];
 }
 
@@ -151,7 +114,7 @@ static BOOL SavePlist(NSMutableDictionary *dict, NSString *path)
     [[NSFileManager defaultManager] createDirectoryAtPath:dir
                               withIntermediateDirectories:YES
                                                attributes:nil
-                                                    error:nil];
+                                                    error:NULL];
     return [dict writeToFile:path atomically:YES];
 }
 
