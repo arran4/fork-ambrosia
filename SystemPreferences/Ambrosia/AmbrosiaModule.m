@@ -82,6 +82,9 @@ static const NSUInteger kAutoHideDelayCount   = 7;
 @synthesize sceneFilePathField = _sceneFilePathField;
 @synthesize sceneFileChooseButton = _sceneFileChooseButton;
 @synthesize tabView = _tabView;
+@synthesize dockItems = _dockItems;
+@synthesize sessionItems = _sessionItems;
+@synthesize startupCommands = _startupCommands;
 
 
 /* ---------------------------------------------------------------------- */
@@ -143,7 +146,7 @@ static NSTextField *MakeValueLabel(void)
     f.bordered        = NO;
     f.drawsBackground = NO;
     f.bezeled      = NO;
-    f.alignment       = NSTextAlignmentRight;
+    f.alignment       = NSRightTextAlignment;
     return f;
 }
 
@@ -1191,7 +1194,7 @@ static NSButton *MakeRadioButton(NSString *title)
         @"titlebarSeparatorColor",   @"windowBorderColor",
         @"windowBodyColor",          @"buttonActiveColor", @"buttonInactiveColor", nil];
     for (NSString *key in colorKeys) {
-        if (_compPrefs[key]) [compNotif setObject:[_compPrefs objectForKey:key] forKey:key];
+        if ([_compPrefs objectForKey:key]) [compNotif setObject:[_compPrefs objectForKey:key] forKey:key];
     }
     [[NSDistributedNotificationCenter defaultCenter]
      postNotificationName:kCompPrefsChanged
@@ -1262,7 +1265,7 @@ objectValueForTableColumn:(NSTableColumn *)col
     if (tv == _startupCommandsTable) {
         return [_startupCommands objectAtIndex:(NSUInteger)row];
     }
-    NSDictionary *item = _dockItems[row];
+    NSDictionary *item = [_dockItems objectAtIndex:row];
     if ([col.identifier isEqualToString:@"label"]) return [item objectForKey:@"label"];
     if ([col.identifier isEqualToString:@"path"])  return [item objectForKey:@"launchPath"];
     return @"";
@@ -1282,10 +1285,10 @@ objectValueForTableColumn:(NSTableColumn *)col
         return;
     }
     if (tv == _startupCommandsTable) {
-        _startupCommands[(NSUInteger)row] = [obj copy] ?: @"";
+        [_startupCommands replaceObjectAtIndex:(NSUInteger)row withObject:[obj copy] ?: @""];
         return;
     }
-    NSMutableDictionary *item = (NSMutableDictionary *)_dockItems[row];
+    NSMutableDictionary *item = (NSMutableDictionary *)[_dockItems objectAtIndex:row];
     if ([col.identifier isEqualToString:@"label"]) [item setObject:obj forKey:@"label"];
 }
 
