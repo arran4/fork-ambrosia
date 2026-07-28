@@ -78,7 +78,7 @@ static void ApplyVolume(CGFloat percent)
     return [NSString stringWithFormat:@"Vol %.0f%%", _volume];
 }
 
-- (NSArray<NSDictionary *> *)dropdownItems
+- (NSArray *)dropdownItems
 {
     return @[
 /*        @{ kMenuItemTitle:   @"Output Volume", kMenuItemEnabled: @NO },

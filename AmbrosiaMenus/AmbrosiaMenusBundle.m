@@ -15,7 +15,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
      * Maps the UUID identifiers we embed in menu descriptors back to the live
      * NSMenuItem objects.  Rebuilt on every call to registerMenuWithServer.
      */
-    NSMutableDictionary<NSString *, NSMenuItem *> *_itemTable;
+    NSMutableDictionary *_itemTable;
 
     /* Retry timer: fired when MenuServer wasn't available at first attempt. */
     NSTimer    *_retryTimer;

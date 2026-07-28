@@ -10,6 +10,7 @@ Build-Depends:
  pkg-config,
  libdbus-1-dev,
  clang,
+ libdispatch-dev,
  libpreferencepanes-dev
 Standards-Version: 3.9.6
 

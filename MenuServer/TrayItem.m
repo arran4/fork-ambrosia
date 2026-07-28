@@ -25,13 +25,13 @@ static NSString * const kTrayMenuPath    = @"_trayMenuPath";
 static NSString * const kTrayMenuItemId  = @"_dbusMenuId";
 
 /* XDG icon size preference order for bar icons */
-static NSArray<NSString *> *IconSizes(void)
+static NSArray *IconSizes(void)
 {
     return @[@"22x22", @"16x16", @"24x24", @"32x32", @"scalable"];
 }
 
 /* XDG subdirectory categories to search */
-static NSArray<NSString *> *IconCategories(void)
+static NSArray *IconCategories(void)
 {
     return @[@"apps", @"status", @"devices", @"mimetypes", @"places"];
 }
@@ -47,14 +47,14 @@ static NSString *FindIconPath(NSString *iconName)
                ? iconName : nil;
     }
 
-    NSArray<NSString *> *bases = @[
+    NSArray *bases = @[
         @"/usr/share/icons/hicolor",
         @"/usr/share/icons/Adwaita",
         @"/usr/share/icons/gnome",
         @"/usr/share/icons/oxygen",
     ];
-    NSArray<NSString *> *sizes = IconSizes();
-    NSArray<NSString *> *cats  = IconCategories();
+    NSArray *sizes = IconSizes();
+    NSArray *cats  = IconCategories();
     NSFileManager *fm = [NSFileManager defaultManager];
 
     for (NSString *base in bases) {
@@ -556,7 +556,7 @@ static NSArray *ParseDBusMenuNode(DBusMessageIter *nodeIter,
 
 - (void)fetchMenuItemsWithConnection:(void *)dbusConn
                            dbusQueue:(dispatch_queue_t)dbusQueue
-                          completion:(void (^)(NSArray<NSDictionary *> *))completion
+                          completion:(void (^)(NSArray *))completion
 {
     NSString *menuPath = _menuPath;
     if (!menuPath.length || !dbusConn || !dbusQueue) {

@@ -418,7 +418,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
 - (void)_activateForeignAppWithPID:(int32_t)pid
                               name:(NSString *)name
-                           windows:(NSArray<NSDictionary *> *)windows
+                           windows:(NSArray *)windows
 {
     /* If no name arrived from the compositor, fall back to /proc/pid/comm */
     if (!name.length) {
@@ -615,7 +615,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     }
     if ([identifier hasPrefix:kForeignWindowIdentifierPrefix]) {
         NSString *rest = [identifier substringFromIndex:kForeignWindowIdentifierPrefix.length];
-        NSArray<NSString *> *parts = [rest componentsSeparatedByString:@":"];
+        NSArray *parts = [rest componentsSeparatedByString:@":"];
         if (parts.count == 2) {
             int32_t pid = (int32_t)[parts[0] intValue];
             NSInteger idx = [parts[1] integerValue];
@@ -658,7 +658,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
 - (void)openSystemPreferences
 {
-    NSArray<NSString *> *candidates = @[
+    NSArray *candidates = @[
         @"/usr/GNUstep/Local/Applications/SystemPreferences.app",
         @"/usr/GNUstep/System/Applications/SystemPreferences.app",
         @"/usr/local/GNUstep/Local/Applications/SystemPreferences.app",
@@ -737,7 +737,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     }
 
     /* GFinder is not running — launch it. */
-    NSArray<NSString *> *candidates = @[
+    NSArray *candidates = @[
         @"/usr/GNUstep/Local/Applications/GFinder.app",
         @"/usr/GNUstep/System/Applications/GFinder.app",
         @"/usr/local/GNUstep/Local/Applications/GFinder.app",
@@ -799,7 +799,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
      * focus via the compositor's activate notification instead of launching
      * a second instance.  Fall back to common X11 terminal emulators when
      * Terminal.app is not installed.                                        */
-    NSArray<NSString *> *terminalAppCandidates = @[
+    NSArray *terminalAppCandidates = @[
         @"/usr/GNUstep/Local/Applications/Terminal.app",
         @"/usr/GNUstep/System/Applications/Terminal.app",
         @"/usr/local/GNUstep/Local/Applications/Terminal.app",
@@ -846,7 +846,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     }
 
     /* Terminal.app not found — fall back to generic X11 terminal emulators. */
-    NSArray<NSString *> *fallbacks = @[
+    NSArray *fallbacks = @[
         @"/usr/bin/xterm",
         @"/usr/bin/x-terminal-emulator",
         @"/usr/bin/gnome-terminal",
@@ -869,7 +869,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     /* CalendarAppPath in AmbrosiaMenuBar.plist overrides the default app. */
     NSString *overridePath = ReadMenuBarStringPref(@"CalendarAppPath");
 
-    NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+    NSMutableArray *candidates = [NSMutableArray array];
     if (overridePath.length) [candidates addObject:overridePath];
     [candidates addObjectsFromArray:@[
         @"/usr/GNUstep/Local/Applications/SimpleAgenda.app",

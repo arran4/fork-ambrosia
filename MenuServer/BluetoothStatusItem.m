@@ -33,7 +33,7 @@ static NSString *StripANSI(NSString *s)
 }
 
 /** Run bluetoothctl with arguments; return stdout (for single-device queries). */
-static NSString *BTCtl(NSArray<NSString *> *args)
+static NSString *BTCtl(NSArray *args)
 {
     NSTask *task = [[NSTask alloc] init];
     NSPipe *pipe = [NSPipe pipe];
@@ -94,7 +94,7 @@ static BOOL FetchBTEnabled(void)
 
 /** Parse "devices" output into an array of {name, address} dicts.
  *  Handles both "Device ADDR Name" and "[NEW] Device ADDR Name" lines. */
-static NSArray<NSDictionary *> *ParseDeviceList(NSString *output)
+static NSArray *ParseDeviceList(NSString *output)
 {
     NSMutableArray *result = [NSMutableArray array];
     NSMutableSet   *seen   = [NSMutableSet set];
@@ -139,7 +139,7 @@ static void ParseDeviceInfo(NSString *output,
 /* ---------------------------------------------------------------------- */
 
 @implementation BluetoothStatusItem {
-    NSArray<NSDictionary *> *_devices;
+    NSArray *_devices;
     BOOL                     _btEnabled;
     NSTimer                 *_timer;
     id                _delegate;
@@ -177,7 +177,7 @@ static void ParseDeviceInfo(NSString *output,
     return @"BT";
 }
 
-- (NSArray<NSDictionary *> *)dropdownItems
+- (NSArray *)dropdownItems
 {
     NSMutableArray *items = [NSMutableArray array];
 
@@ -355,7 +355,7 @@ static void ParseDeviceInfo(NSString *output,
 
 - (void)_openBluetoothPrefs
 {
-    NSArray<NSString *> *candidates = @[
+    NSArray *candidates = @[
         @"/usr/GNUstep/Local/Applications/SystemPreferences.app",
         @"/usr/GNUstep/System/Applications/SystemPreferences.app",
         @"/usr/local/GNUstep/Local/Applications/SystemPreferences.app",

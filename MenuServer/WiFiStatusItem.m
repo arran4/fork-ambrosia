@@ -13,7 +13,7 @@ static NSString * const kActionWiFiPrefs      = @"wifi.openprefs";
 
 /* ---------------------------------------------------------------------- */
 
-static NSString *RunNMCLI(NSArray<NSString *> *args)
+static NSString *RunNMCLI(NSArray *args)
 {
     NSTask *task = [[NSTask alloc] init];
     NSPipe *pipe = [NSPipe pipe];
@@ -33,7 +33,7 @@ static NSString *RunNMCLI(NSArray<NSString *> *args)
 }
 
 /* Run nmcli for a mutating command; log exit code and any error output. */
-static void RunNMCLICommand(NSArray<NSString *> *args, NSString *label)
+static void RunNMCLICommand(NSArray *args, NSString *label)
 {
     NSTask *task = [[NSTask alloc] init];
     NSPipe *outPipe = [NSPipe pipe];
@@ -74,7 +74,7 @@ static BOOL FetchWiFiEnabled(void)
 }
 
 /* Returns array of {kWiFiName, kWiFiActive} sorted active-first then alpha. */
-static NSArray<NSDictionary *> *FetchWiFiConnections(void)
+static NSArray *FetchWiFiConnections(void)
 {
     NSString *out = RunNMCLI(@[@"-t", @"-f", @"NAME,TYPE,ACTIVE", @"connection", @"show"]);
     NSMutableArray *result = [NSMutableArray array];
@@ -110,7 +110,7 @@ static NSArray<NSDictionary *> *FetchWiFiConnections(void)
 /* ---------------------------------------------------------------------- */
 
 @implementation WiFiStatusItem {
-    NSArray<NSDictionary *> *_connections;
+    NSArray *_connections;
     BOOL                     _wifiEnabled;
     NSTimer                 *_timer;
     id                _delegate;
@@ -140,7 +140,7 @@ static NSArray<NSDictionary *> *FetchWiFiConnections(void)
 
 - (NSString *)barLabel { return @"Wi-Fi"; }
 
-- (NSArray<NSDictionary *> *)dropdownItems
+- (NSArray *)dropdownItems
 {
     NSMutableArray *items = [NSMutableArray array];
 
@@ -277,7 +277,7 @@ static NSArray<NSDictionary *> *FetchWiFiConnections(void)
 
 - (void)_openNetworkPrefs
 {
-    NSArray<NSString *> *candidates = @[
+    NSArray *candidates = @[
         @"/usr/GNUstep/Local/Applications/SystemPreferences.app",
         @"/usr/GNUstep/System/Applications/SystemPreferences.app",
         @"/usr/local/GNUstep/Local/Applications/SystemPreferences.app",

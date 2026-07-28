@@ -153,7 +153,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
 @implementation MenuBarView {
     /* ---- Bar state ---- */
-    NSArray   *_activeMenuItems;   /* NSArray<NSDictionary*> from DO app */
+    NSArray   *_activeMenuItems;   /* NSArray from DO app */
     NSString  *_clockString;
     NSTimer   *_clockTimer;
 
@@ -247,7 +247,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 /* ---------------------------------------------------------------------- */
 #pragma mark - Tray items
 
-- (void)setTrayItems:(NSArray<TrayItem *> *)trayItems
+- (void)setTrayItems:(NSArray *)trayItems
 {
     _trayItems = [trayItems copy];
     [self setNeedsDisplay:YES];
@@ -344,7 +344,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     rightX -= clockW + kItemGap;
 
     /* ---- RIGHT SIDE: status item plugins (right-to-left) ---- */
-    NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+    NSArray> *plugins = _statusPlugins;
     for (NSInteger pi = (NSInteger)plugins.count - 1; pi >= 0; pi--) {
         id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pi];
         NSString *label = plugin.barLabel;
@@ -369,7 +369,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     }
 
     /* ---- RIGHT SIDE: tray icons (right-to-left, left of status plugins) ---- */
-    NSArray<TrayItem *> *trayItems = _trayItems;
+    NSArray *trayItems = _trayItems;
     if (trayItems.count > 0) {
         /* Vertical icon origin so a kTrayIconSize icon is centred in the bar */
         CGFloat iconY = (kBarHeight - kTrayIconSize) * 0.5;
@@ -691,7 +691,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
  */
 - (void)_openTrayMenuForItemIndex:(NSInteger)ti clickPoint:(NSPoint)pt
 {
-    NSArray<TrayItem *> *items = _trayItems;
+    NSArray *items = _trayItems;
     if (ti < 0 || ti >= (NSInteger)items.count) return;
     TrayItem *trayItem = items[(NSUInteger)ti];
     void             *conn      = _controller.trayManager.dbusConnection;
@@ -700,7 +700,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     id weakSelf = self;
     [trayItem fetchMenuItemsWithConnection:conn
                                  dbusQueue:dbusQueue
-                                completion:^(NSArray<NSDictionary *> *menuItems) {
+                                completion:^(NSArray *menuItems) {
         id strongSelf = weakSelf;
         if (!strongSelf) return;
 
@@ -877,7 +877,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     _openDescriptors = [mutable copy];
 
     /* Notify the owning plugin so it applies the volume change. */
-    NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+    NSArray> *plugins = _statusPlugins;
     NSInteger pi = _draggingSliderPluginIdx;
     if (pi >= 0 && pi < (NSInteger)plugins.count)
         [plugins[(NSUInteger)pi] activateItem:sliderItem];
@@ -955,7 +955,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Tray items forward clicks directly to the SNI item; no dropdown. */
     if (region >= MenuBarRegionTrayItem) {
         NSInteger ti = region - MenuBarRegionTrayItem;
-        NSArray<TrayItem *> *items = _trayItems;
+        NSArray *items = _trayItems;
         if (ti < (NSInteger)items.count) {
             TrayItem *item = items[(NSUInteger)ti];
             NSRect   slot  = [_trayRects[(NSUInteger)ti] rectValue];
@@ -985,7 +985,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     } else if (region >= MenuBarRegionStatusItem &&
                region < MenuBarRegionMenuItem) {
         NSInteger pi = region - MenuBarRegionStatusItem;
-        NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+        NSArray> *plugins = _statusPlugins;
         if (pi < (NSInteger)plugins.count) {
             id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pi];
             descriptors = plugin.dropdownItems;
@@ -1041,7 +1041,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     /* Plugin items: route to the plugin that owned this dropdown. */
     if (pluginIdx >= 0) {
-        NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+        NSArray> *plugins = _statusPlugins;
         if (pluginIdx < (NSInteger)plugins.count) {
             id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pluginIdx];
             [plugin activateItem:item];

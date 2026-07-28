@@ -36,7 +36,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
 
 @implementation TrayManager {
     DBusConnection             *_conn;
-    NSMutableArray<TrayItem *> *_items;
+    NSMutableArray *_items;
     dispatch_queue_t            _dbusQueue;
     dispatch_source_t           _dispatchSource; /* GCD timer drives D-Bus dispatch */
 }
@@ -67,7 +67,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
     }
 }
 
-- (NSArray<TrayItem *> *)trayItems { return [_items copy]; }
+- (NSArray *)trayItems { return [_items copy]; }
 - (void *)dbusConnection           { return _conn; }
 
 /* ---------------------------------------------------------------------- */

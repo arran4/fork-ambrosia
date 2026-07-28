@@ -30,7 +30,7 @@
  * the kMenuItemGrayed extension key.
  * Return nil or an empty array to disable the dropdown.
  */
-@property (nonatomic, readonly) NSArray<NSDictionary *> *dropdownItems;
+@property (nonatomic, readonly) NSArray *dropdownItems;
 
 /**
  * Called on a background queue approximately every 30 seconds, and also

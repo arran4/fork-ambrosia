@@ -87,7 +87,7 @@
  */
 - (void)fetchMenuItemsWithConnection:(void *)connection
                            dbusQueue:(dispatch_queue_t)dbusQueue
-                          completion:(void (^)(NSArray<NSDictionary *> *items))completion;
+                          completion:(void (^)(NSArray *items))completion;
 
 /**
  * Send Event(id, "clicked", 0, timestamp) to activate a dbusmenu item.

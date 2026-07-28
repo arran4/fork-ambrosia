@@ -13,11 +13,11 @@ MenuServer_OBJC_FILES = \
 	TrayItem.m \
 	TrayManager.m
 
-MenuServer_OBJCFLAGS  = -fno-objc-arc \
+MenuServer_OBJCFLAGS  = -fno-objc-arc -fblocks \
 	$(shell pkg-config --cflags dbus-1)
 
 MenuServer_LDFLAGS    = \
-	$(shell pkg-config --libs dbus-1)
+	$(shell pkg-config --libs dbus-1) -ldispatch -lBlocksRuntime
 
 MenuServer_PRINCIPAL_CLASS = AppDelegate
 

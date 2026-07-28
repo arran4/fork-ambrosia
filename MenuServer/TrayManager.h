@@ -19,7 +19,7 @@
 @interface TrayManager : NSObject <TrayItemDelegate>
 
 /** Currently registered tray items (ordered by registration time). */
-@property (nonatomic, readonly, copy) NSArray<TrayItem *> *trayItems;
+@property (nonatomic, readonly, copy) NSArray *trayItems;
 
 /** Delegate notified when items are added, removed, or updated. */
 @property (nonatomic, assign) id<TrayManagerDelegate> delegate;

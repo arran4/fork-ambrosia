@@ -28,20 +28,20 @@
  * inserted between the clock and tray area).
  * Set by MenuBarController after construction.
  */
-@property (nonatomic, copy) NSArray<id<AmbrosiaStatusItemPlugin>> *statusPlugins;
+@property (nonatomic, copy) NSArray> *statusPlugins;
 
 /**
  * Tray items from the SNI StatusNotifierWatcher, drawn between the status
  * plugins and the clock.  Set by MenuBarController when the TrayManager
  * reports a change.
  */
-@property (nonatomic, copy) NSArray<TrayItem *> *trayItems;
+@property (nonatomic, copy) NSArray *trayItems;
 
 /**
  * Update the displayed application name and optional menu-item descriptors.
  *
  * @param appName   Name of the frontmost application, or nil to clear.
- * @param menuItems NSArray<NSDictionary*> of top-level menu descriptors as
+ * @param menuItems NSArray of top-level menu descriptors as
  *                  defined in MenuServerProtocol.h, or nil for name-only display.
  */
 - (void)setActiveAppName:(NSString *)appName menuItems:(NSArray *)menuItems;
