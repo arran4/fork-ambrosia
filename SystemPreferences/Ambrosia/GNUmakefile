@@ -21,4 +21,3 @@ ADDITIONAL_FRAMEWORK_DIRS += $(GNUSTEP_LOCAL_DOMAIN_ROOT)
 AmbrosiaModule_FRAMEWORKS  = PreferencePanes
 
 include $(GNUSTEP_MAKEFILES)/bundle.make
-ADDITIONAL_OBJCFLAGS += -fblocks
