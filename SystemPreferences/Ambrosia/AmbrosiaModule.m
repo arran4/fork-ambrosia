@@ -117,7 +117,7 @@ static NSButton *MakeCheckbox(NSString *title)
     NSButton *b = [[NSButton alloc] initWithFrame:NSZeroRect];
     [b setButtonType:NSSwitchButton];
     [b setTitle:title];
-    b.state = NSControlStateValueOff;
+    b.state = NSOffState;
     return b;
 }
 
@@ -486,7 +486,7 @@ static NSButton *MakeRadioButton(NSString *title)
     NSButton *b = [[NSButton alloc] initWithFrame:NSZeroRect];
     [b setButtonType:NSRadioButton];
     [b setTitle:title];
-    b.state = NSControlStateValueOff;
+    b.state = NSOffState;
     return b;
 }
 
@@ -507,7 +507,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _bgImagePathField = [[NSTextField alloc] initWithFrame:
                           NSMakeRect(MV_CTRL_X, y, fW, MV_ROW_H)];
-    _bgImagePathField.placeholderString = @"(none)";
+    [[_bgImagePathField cell] setPlaceholderString:@"(none)"];
     _bgImagePathField.editable = YES;
     _bgImagePathField.autoresizingMask = NSViewWidthSizable;
     [tab addSubview:_bgImagePathField];
@@ -558,7 +558,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _bgFolderPathField = [[NSTextField alloc] initWithFrame:
                            NSMakeRect(MV_CTRL_X, y, fW, MV_ROW_H)];
-    _bgFolderPathField.placeholderString = @"(none)";
+    [[_bgFolderPathField cell] setPlaceholderString:@"(none)"];
     _bgFolderPathField.editable = YES;
     _bgFolderPathField.autoresizingMask = NSViewWidthSizable;
     [tab addSubview:_bgFolderPathField];
@@ -595,7 +595,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _sceneFilePathField = [[NSTextField alloc] initWithFrame:
                             NSMakeRect(MV_CTRL_X, y, fW, MV_ROW_H)];
-    _sceneFilePathField.placeholderString = @"(path to scene.txt)";
+    [[_sceneFilePathField cell] setPlaceholderString:@"(path to scene.txt)"];
     _sceneFilePathField.editable = YES;
     _sceneFilePathField.autoresizingMask = NSViewWidthSizable;
     [tab addSubview:_sceneFilePathField];
@@ -608,7 +608,7 @@ static NSButton *MakeRadioButton(NSString *title)
     [tab addSubview:_sceneFileChooseButton];
 
     /* Default state: Background Image mode selected */
-    _bgImageRadio.state = NSControlStateValueOn;
+    _bgImageRadio.state = NSOnState;
     [self _updateDesktopControlsForMode:@"image"];
 
     return tab;
@@ -738,13 +738,13 @@ static NSButton *MakeRadioButton(NSString *title)
 
     BOOL decorations = [_compPrefs objectForKey:@"serverSideDecorations"]
         ? [[_compPrefs objectForKey:@"serverSideDecorations"] boolValue] : NO;
-    _enableDecorationsCheck.state = decorations ? NSControlStateValueOn : NSControlStateValueOff;
+    _enableDecorationsCheck.state = decorations ? NSOnState : NSOffState;
 
     BOOL blur = [[_compPrefs objectForKey:@"enableBlur"] boolValue];
-    _enableBlurCheck.state = blur ? NSControlStateValueOn : NSControlStateValueOff;
+    _enableBlurCheck.state = blur ? NSOnState : NSOffState;
 
     BOOL x11Dec = [[_compPrefs objectForKey:@"x11Decorations"] boolValue];
-    _x11DecorationsCheck.state = x11Dec ? NSControlStateValueOn : NSControlStateValueOff;
+    _x11DecorationsCheck.state = x11Dec ? NSOnState : NSOffState;
 
     /* ---- Dock ---- */
     CGFloat iconSize = [[_dockPrefs objectForKey:@"iconSize"] doubleValue];
@@ -761,7 +761,7 @@ static NSButton *MakeRadioButton(NSString *title)
     else if ([pos isEqualToString:@"right"]) [_positionControl setSelectedSegment:2];
 
     BOOL autoHide = [[_dockPrefs objectForKey:@"autoHide"] boolValue];
-    _autoHideCheck.state = autoHide ? NSControlStateValueOn : NSControlStateValueOff;
+    _autoHideCheck.state = autoHide ? NSOnState : NSOffState;
 
     NSInteger autoHideDelay = [[_dockPrefs objectForKey:@"autoHideDelay"] integerValue];
     if (autoHideDelay <= 0) autoHideDelay = 10;
@@ -774,7 +774,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
     _showRunningIndicatorCheck.state =
         ([_dockPrefs objectForKey:@"showRunningDots"] ? [[_dockPrefs objectForKey:@"showRunningDots"] boolValue] : YES)
-        ? NSControlStateValueOn : NSControlStateValueOff;
+        ? NSOnState : NSOffState;
 
     NSArray *rawItems = [_dockPrefs objectForKey:@"items"];
     _dockItems = [NSMutableArray array];
@@ -810,9 +810,9 @@ static NSButton *MakeRadioButton(NSString *title)
 
     /* backgroundMode is stored in the Compositor plist */
     NSString *mode = [_compPrefs objectForKey:@"backgroundMode"] ?: @"image";
-    _bgImageRadio.state  = [mode isEqualToString:@"image"]    ? NSControlStateValueOn : NSControlStateValueOff;
-    _rotatingRadio.state = [mode isEqualToString:@"rotating"] ? NSControlStateValueOn : NSControlStateValueOff;
-    _bg3DRadio.state     = [mode isEqualToString:@"3d"]       ? NSControlStateValueOn : NSControlStateValueOff;
+    _bgImageRadio.state  = [mode isEqualToString:@"image"]    ? NSOnState : NSOffState;
+    _rotatingRadio.state = [mode isEqualToString:@"rotating"] ? NSOnState : NSOffState;
+    _bg3DRadio.state     = [mode isEqualToString:@"3d"]       ? NSOnState : NSOffState;
     [self _updateDesktopControlsForMode:mode];
 }
 
@@ -858,7 +858,7 @@ static NSButton *MakeRadioButton(NSString *title)
 
 - (IBAction)toggleAutoHide:(id)sender
 {
-    BOOL enabled = (_autoHideCheck.state == NSControlStateValueOn);
+    BOOL enabled = (_autoHideCheck.state == NSOnState);
     _autoHideDelaySlider.enabled = enabled;
     _autoHideDelayLabel.textColor = enabled
         ? [NSColor controlTextColor] : [NSColor disabledControlTextColor];
@@ -982,8 +982,8 @@ static NSButton *MakeRadioButton(NSString *title)
 
 - (NSString *)_selectedBackgroundMode
 {
-    if (_rotatingRadio.state == NSControlStateValueOn) return @"rotating";
-    if (_bg3DRadio.state     == NSControlStateValueOn) return @"3d";
+    if (_rotatingRadio.state == NSOnState) return @"rotating";
+    if (_bg3DRadio.state     == NSOnState) return @"3d";
     return @"image";
 }
 
@@ -1003,9 +1003,9 @@ static NSButton *MakeRadioButton(NSString *title)
 - (IBAction)backgroundModeChanged:(id)sender
 {
     /* Enforce radio-button mutual exclusion and update dependent controls */
-    _bgImageRadio.state  = (sender == _bgImageRadio)  ? NSControlStateValueOn : NSControlStateValueOff;
-    _rotatingRadio.state = (sender == _rotatingRadio) ? NSControlStateValueOn : NSControlStateValueOff;
-    _bg3DRadio.state     = (sender == _bg3DRadio)     ? NSControlStateValueOn : NSControlStateValueOff;
+    _bgImageRadio.state  = (sender == _bgImageRadio)  ? NSOnState : NSOffState;
+    _rotatingRadio.state = (sender == _rotatingRadio) ? NSOnState : NSOffState;
+    _bg3DRadio.state     = (sender == _bg3DRadio)     ? NSOnState : NSOffState;
     [self _updateDesktopControlsForMode:[self _selectedBackgroundMode]];
 }
 
@@ -1108,10 +1108,10 @@ static NSButton *MakeRadioButton(NSString *title)
     NSString *bgMode = [self _selectedBackgroundMode];
 
     /* ---- Compositor ---- */
-    BOOL x11Dec = (_x11DecorationsCheck.state == NSControlStateValueOn);
+    BOOL x11Dec = (_x11DecorationsCheck.state == NSOnState);
     [_compPrefs setObject:@(_transparencySlider.doubleValue) forKey:@"windowTransparency"];
-    [_compPrefs setObject:@(_enableDecorationsCheck.state == NSControlStateValueOn) forKey:@"serverSideDecorations"];
-    [_compPrefs setObject:@(_enableBlurCheck.state == NSControlStateValueOn) forKey:@"enableBlur"];
+    [_compPrefs setObject:@(_enableDecorationsCheck.state == NSOnState) forKey:@"serverSideDecorations"];
+    [_compPrefs setObject:@(_enableBlurCheck.state == NSOnState) forKey:@"enableBlur"];
     [_compPrefs setObject:@(x11Dec) forKey:@"x11Decorations"];
 
     /* When X11 decorations are enabled, bake in the current GNUstep theme
@@ -1133,9 +1133,9 @@ static NSButton *MakeRadioButton(NSString *title)
     [_dockPrefs setObject:@(_iconSizeSlider.doubleValue) forKey:@"iconSize"];
     [_dockPrefs setObject:@(_zoomFactorSlider.doubleValue) forKey:@"zoomFactor"];
     [_dockPrefs setObject:pos forKey:@"dockPosition"];
-    [_dockPrefs setObject:@(_autoHideCheck.state == NSControlStateValueOn) forKey:@"autoHide"];
+    [_dockPrefs setObject:@(_autoHideCheck.state == NSOnState) forKey:@"autoHide"];
     [_dockPrefs setObject:@(autoHideDelayForSliderPos(_autoHideDelaySlider.integerValue)) forKey:@"autoHideDelay"];
-    [_dockPrefs setObject:@(_showRunningIndicatorCheck.state == NSControlStateValueOn) forKey:@"showRunningDots"];
+    [_dockPrefs setObject:@(_showRunningIndicatorCheck.state == NSOnState) forKey:@"showRunningDots"];
     [_dockPrefs setObject:[_dockItems copy] forKey:@"items"];
     SavePlist(_dockPrefs, _dockPrefsPath);
 
@@ -1219,7 +1219,7 @@ objectValueForTableColumn:(NSTableColumn *)col
     if (tv == _sessionItemsTable) {
         NSDictionary *item = _sessionItems[row];
         if ([col.identifier isEqualToString:@"enabled"])
-            return @([[item objectForKey:@"enabled"] boolValue] ? NSControlStateValueOn : NSControlStateValueOff);
+            return @([[item objectForKey:@"enabled"] boolValue] ? NSOnState : NSOffState);
         if ([col.identifier isEqualToString:@"name"])        return [item objectForKey:@"name"];
         if ([col.identifier isEqualToString:@"sessionPath"]) return [item objectForKey:@"path"];
         return @"";
@@ -1241,7 +1241,7 @@ objectValueForTableColumn:(NSTableColumn *)col
     if (tv == _sessionItemsTable) {
         NSMutableDictionary *item = (NSMutableDictionary *)_sessionItems[row];
         if ([col.identifier isEqualToString:@"enabled"])
-            [item setObject:@([obj intValue] == NSControlStateValueOn) forKey:@"enabled"];
+            [item setObject:@([obj intValue] == NSOnState) forKey:@"enabled"];
         else if ([col.identifier isEqualToString:@"name"])
             [item setObject:obj forKey:@"name"];
         return;
