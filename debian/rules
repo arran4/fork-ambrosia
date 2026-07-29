@@ -10,6 +10,8 @@ override_dh_auto_clean:
 	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) distclean
 
 override_dh_auto_build:
+	sed -i 's/void \*_Block_copy(void \*)/void \*_Block_copy(const void \*)/g' /usr/include/GNUstep/GNUstepBase/GSBlocks.h || true
+	sed -i 's/void _Block_release(void \*)/void _Block_release(const void \*)/g' /usr/include/GNUstep/GNUstepBase/GSBlocks.h || true
 	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) CC=clang CXX=clang++ OBJC=clang
 
 override_dh_auto_install:
