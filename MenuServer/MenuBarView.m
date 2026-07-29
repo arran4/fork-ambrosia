@@ -344,7 +344,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     rightX -= clockW + kItemGap;
 
     /* ---- RIGHT SIDE: status item plugins (right-to-left) ---- */
-    NSArray> *plugins = _statusPlugins;
+    NSArray *plugins = _statusPlugins;
     for (NSInteger pi = (NSInteger)plugins.count - 1; pi >= 0; pi--) {
         id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pi];
         NSString *label = plugin.barLabel;
@@ -877,7 +877,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     _openDescriptors = [mutable copy];
 
     /* Notify the owning plugin so it applies the volume change. */
-    NSArray> *plugins = _statusPlugins;
+    NSArray *plugins = _statusPlugins;
     NSInteger pi = _draggingSliderPluginIdx;
     if (pi >= 0 && pi < (NSInteger)plugins.count)
         [plugins[(NSUInteger)pi] activateItem:sliderItem];
@@ -985,7 +985,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     } else if (region >= MenuBarRegionStatusItem &&
                region < MenuBarRegionMenuItem) {
         NSInteger pi = region - MenuBarRegionStatusItem;
-        NSArray> *plugins = _statusPlugins;
+        NSArray *plugins = _statusPlugins;
         if (pi < (NSInteger)plugins.count) {
             id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pi];
             descriptors = plugin.dropdownItems;
@@ -1041,7 +1041,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     /* Plugin items: route to the plugin that owned this dropdown. */
     if (pluginIdx >= 0) {
-        NSArray> *plugins = _statusPlugins;
+        NSArray *plugins = _statusPlugins;
         if (pluginIdx < (NSInteger)plugins.count) {
             id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pluginIdx];
             [plugin activateItem:item];

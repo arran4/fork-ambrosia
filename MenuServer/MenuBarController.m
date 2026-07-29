@@ -49,13 +49,13 @@ static NSString *MenuBarPrefsPath(void)
 static BOOL ReadMenuBarPref(NSString *key)
 {
     NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:MenuBarPrefsPath()];
-    return [prefs[key] boolValue];
+    return [[prefs objectForKey:key] boolValue];
 }
 
 static NSString *ReadMenuBarStringPref(NSString *key)
 {
     NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:MenuBarPrefsPath()];
-    NSString *value = prefs[key];
+    NSString *value = [prefs objectForKey:key];
     return [value isKindOfClass:[NSString class]] ? value : nil;
 }
 
@@ -77,7 +77,7 @@ static NSDictionary *PrimaryMonitorFromSystemPreferences(void)
                                 @"Monitor", @"monitor"];
     NSArray *monitors = nil;
     for (NSString *key in keyCandidates) {
-        id value = prefs[key];
+        id value = [prefs objectForKey:key];
         if ([value isKindOfClass:[NSArray class]]) {
             monitors = (NSArray *)value;
             break;
@@ -89,14 +89,14 @@ static NSDictionary *PrimaryMonitorFromSystemPreferences(void)
         if (![entry isKindOfClass:[NSDictionary class]]) continue;
         NSDictionary *monitor = (NSDictionary *)entry;
         BOOL isPrimary =
-            [monitor[@"primary"] boolValue]  ||
-            [monitor[@"Primary"] boolValue]  ||
-            [monitor[@"isPrimary"] boolValue]||
-            [monitor[@"IsPrimary"] boolValue];
+            [[monitor objectForKey:@"primary"] boolValue]  ||
+            [[monitor objectForKey:@"Primary"] boolValue]  ||
+            [[monitor objectForKey:@"isPrimary"] boolValue]||
+            [[monitor objectForKey:@"IsPrimary"] boolValue];
         if (isPrimary) return monitor;
     }
     /* Fall back to the first entry if none is marked primary. */
-    return [monitors firstObject];
+    return ([monitors count] > 0 ? [monitors objectAtIndex:0] : nil);
 }
 
 static NSRect MenuBarRectForStartupScreen(void)
@@ -109,14 +109,14 @@ static NSRect MenuBarRectForStartupScreen(void)
         /* Physical pixel width is nested under "resolution" in the plist
          * written by SystemPreferences (e.g. resolution.width = 2560).
          * Fall back to a flat "width" key for older plist formats.        */
-        NSDictionary *res = primaryMonitor[@"resolution"];
-        double width = [res[@"width"] doubleValue];
+        NSDictionary *res = [primaryMonitor objectForKey:@"resolution"];
+        double width = [[res objectForKey:@"width"] doubleValue];
         if (width <= 0.0)
-            width = [primaryMonitor[@"width"] doubleValue]
-                 ?: [primaryMonitor[@"Width"] doubleValue];
+            width = [[primaryMonitor objectForKey:@"width"] doubleValue]
+                 ?: [[primaryMonitor objectForKey:@"Width"] doubleValue];
 
         double scale =
-            [primaryMonitor[@"scale"] doubleValue] ?: [primaryMonitor[@"Scale"] doubleValue];
+            [[primaryMonitor objectForKey:@"scale"] doubleValue] ?: [[primaryMonitor objectForKey:@"Scale"] doubleValue];
 
         if (width > 0.0) {
             sf.size.width = (scale > 0.0) ? (CGFloat)(width / scale) : (CGFloat)width;
@@ -140,37 +140,7 @@ static NSRect MenuBarRectForStartupScreen(void)
 static NSString * const kForeignQuitIdentifier = @"__ambrosia_quit_foreign__";
 static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_window__:";
 
-@implementation MenuBarController {
-    NSPanel              *_menuPanel;
-    MenuBarView          *_menuBarView;
-    NSConnection         *_doConnection;
-    NSString             *_activeAppName;
-    NSArray              *_activeMenuItems;
-    /* PID of the DO-registered active app, or 0 if no app has registered. */
-    int32_t               _activeClientPID;
-    id                    _activateObserver;
-    id                    _deactivateObserver;
-    /* GFinder running-state tracking. */
-    int32_t               _gfinderPID;        /* 0 = not running */
-    NSString             *_gfinderLaunchPath; /* path seen at launch time */
-    id                    _gfinderLaunchObs;
-    id                    _gfinderTerminateObs;
-    /* Status item plugins */
-    BluetoothStatusItem  *_bluetoothItem;
-    WiFiStatusItem       *_wifiItem;
-    VolumeStatusItem     *_volumeItem;
-    /* Tray icon manager (SNI / StatusNotifierItem) */
-    TrayManager          *_trayManager;
-
-    /* Non-GNUstep (foreign) application focus tracking.
-     * Set when the compositor reports focus on a PID that has no DO
-     * registration; cleared as soon as a GNUstep app registers.           */
-    int32_t               _activeForeignPID;
-    NSString             *_activeForeignName;
-    /* Monotonically-increasing token used to cancel pending delayed
-     * foreign-app activations if a GNUstep app registers first.           */
-    NSInteger             _foreignToken;
-}
+@implementation MenuBarController
 
 @synthesize menuPanel    = _menuPanel;
 @synthesize menuBarView  = _menuBarView;

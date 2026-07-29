@@ -28,7 +28,7 @@
  * inserted between the clock and tray area).
  * Set by MenuBarController after construction.
  */
-@property (nonatomic, copy) NSArray> *statusPlugins;
+@property (nonatomic, copy) NSArray *statusPlugins;
 
 /**
  * Tray items from the SNI StatusNotifierWatcher, drawn between the status

@@ -15,7 +15,22 @@
  * The controller also drives the Ambrosia system actions (logout, about, …)
  * that the MenuBarView triggers via direct calls.
  */
-@interface MenuBarController : NSObject <MenuServerProtocol, TrayManagerDelegate>
+@interface MenuBarController : NSObject <MenuServerProtocol, TrayManagerDelegate> {
+    NSPanel              *_menuPanel;
+    MenuBarView          *_menuBarView;
+    NSConnection         *_doConnection;
+    NSString             *_activeAppName;
+    NSArray              *_activeMenuItems;
+    int32_t               _activeClientPID;
+    id                    _activateObserver;
+    id                    _deactivateObserver;
+    int32_t               _gfinderPID;
+    TrayManager          *_trayManager;
+    NSMenu               *_foreignAppMenu;
+    NSString             *_focusedForeignApp;
+    NSArray              *_focusedForeignWindows;
+    NSMutableDictionary  *_pendingMenus;
+}
 
 /** The full-width borderless panel displayed at NSMainMenuWindowLevel. */
 @property (nonatomic, strong, readonly) NSPanel *menuPanel;
