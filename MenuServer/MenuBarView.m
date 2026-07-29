@@ -29,7 +29,7 @@ static const CGFloat kTrayIconPad  =  4.0;   /* left/right padding per icon */
 static const CGFloat kTraySepW     =  6.0;   /* gap between tray and status items */
 
 /* ---- Hit-region tags ---- */
-typedef NS_ENUM(NSInteger, MenuBarRegion) {
+typedef enum {
     MenuBarRegionNone        = -1,
     MenuBarRegionAmbrosia    =  0,
     MenuBarRegionSession     =  1,
@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, MenuBarRegion) {
     MenuBarRegionTrayItem    =  200,  /* tray icons 200…249; index = tag − 200 */
     MenuBarRegionStatusItem  =  50,   /* plugins 50…99;  index = tag − 50  */
     MenuBarRegionMenuItem    =  100,  /* items >= 100;   index = tag − 100  */
-};
+} MenuBarRegion;
 
 /* ---- NSDictionary keys for system-menu item descriptors ---- */
 static NSString * const kSysItemTitle    = @"sysTitle";
@@ -153,7 +153,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
 @implementation MenuBarView {
     /* ---- Bar state ---- */
-    NSArray   *_activeMenuItems;   /* NSArray from DO app */
+    NSArray *_activeMenuItems;
     NSString  *_clockString;
     NSTimer   *_clockTimer;
 
@@ -436,10 +436,10 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     NSUInteger activeItemIndex = 0;
     BOOL isFirstMenuItem = YES;
     for (NSDictionary *item in _activeMenuItems) {
-        if ([item[kMenuItemSeparator] boolValue]) { activeItemIndex++; continue; }
+        if ([[item objectForKey:kMenuItemSeparator] boolValue]) { activeItemIndex++; continue; }
 
         NSDictionary *attrs = isFirstMenuItem ? BoldAttrs() : NormalAttrs();
-        NSString *title   = item[kMenuItemTitle] ?: @"";
+        NSString *title   = [item objectForKey:kMenuItemTitle] ?: @"";
         NSSize    titleSz = [title sizeWithAttributes:attrs];
         CGFloat   itemW   = titleSz.width + kItemPad * 2 + 8;
 
@@ -521,8 +521,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Calculate dropdown width */
     CGFloat maxTitleW = kDropMinW - kDropPadX * 2;
     for (NSDictionary *item in _openDescriptors) {
-        if ([item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue]) continue;
-        NSString *title = item[kSysItemTitle] ?: item[kMenuItemTitle] ?: @"";
+        if ([[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue]) continue;
+        NSString *title = item[kSysItemTitle] ?: [item objectForKey:kMenuItemTitle] ?: @"";
         NSSize sz = [title sizeWithAttributes:NormalAttrs()];
         if (sz.width > maxTitleW) maxTitleW = sz.width;
     }
@@ -545,8 +545,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Items */
     NSUInteger idx = 0;
     for (NSDictionary *item in _openDescriptors) {
-        BOOL isSep    = [item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue];
-        BOOL isSlider = !isSep && [item[kMenuItemSlider] boolValue];
+        BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
+        BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
 
         if (isSep) {
             CGFloat rowH = kDropSepH;
@@ -609,8 +609,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
             y += rowH;
 
         } else {
-            BOOL enabled = item[kMenuItemEnabled]
-                           ? [item[kMenuItemEnabled] boolValue] : YES;
+            BOOL enabled = [item objectForKey:kMenuItemEnabled]
+                           ? [[item objectForKey:kMenuItemEnabled] boolValue] : YES;
             BOOL grayed  = [item[kMenuItemGrayed] boolValue];
             BOOL hovered = (_hoveredIdx == (NSInteger)idx);
             CGFloat rowH = kDropItemH;
@@ -622,7 +622,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
                 NSRectFill(rowRect);
             }
 
-            NSString *title = item[kSysItemTitle] ?: item[kMenuItemTitle] ?: @"";
+            NSString *title = item[kSysItemTitle] ?: [item objectForKey:kMenuItemTitle] ?: @"";
             NSDictionary *attrs;
             if (!enabled)
                 attrs = DisabledAttrs();
@@ -657,8 +657,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     CGFloat h = 0;
     for (NSDictionary *item in _openDescriptors) {
-        BOOL isSep    = [item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue];
-        BOOL isSlider = !isSep && [item[kMenuItemSlider] boolValue];
+        BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
+        BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
         if (isSep)         h += kDropSepH;
         else if (isSlider) h += kDropSliderH;
         else               h += kDropItemH;
@@ -755,10 +755,10 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         NSInteger hitIdx = [self _dropdownIndexForPoint:pt];
         if (hitIdx >= 0) {
             NSDictionary *item = _openDescriptors[(NSUInteger)hitIdx];
-            BOOL isSep    = [item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue];
-            BOOL isSlider = !isSep && [item[kMenuItemSlider] boolValue];
-            BOOL enabled  = item[kMenuItemEnabled]
-                            ? [item[kMenuItemEnabled] boolValue] : YES;
+            BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
+            BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
+            BOOL enabled  = [item objectForKey:kMenuItemEnabled]
+                            ? [[item objectForKey:kMenuItemEnabled] boolValue] : YES;
 
             if (isSlider) {
                 /* Start tracking a slider drag — do NOT close the dropdown. */
@@ -999,7 +999,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
             NSUInteger activeIdx = [_menuItemIndices[(NSUInteger)idx] unsignedIntegerValue];
             if (activeIdx < _activeMenuItems.count) {
                 NSDictionary *topItem = _activeMenuItems[activeIdx];
-                descriptors = topItem[kMenuItemChildren];
+                descriptors = [topItem objectForKey:kMenuItemChildren];
                 NSRect r = [[_menuRects objectAtIndex:(NSUInteger)idx] rectValue];
                 openX = r.origin.x;
             }
