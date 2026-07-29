@@ -587,8 +587,8 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         NSString *rest = [identifier substringFromIndex:kForeignWindowIdentifierPrefix.length];
         NSArray *parts = [rest componentsSeparatedByString:@":"];
         if (parts.count == 2) {
-            int32_t pid = (int32_t)[parts[0] intValue];
-            NSInteger idx = [parts[1] integerValue];
+            int32_t pid = (int32_t)[[parts objectAtIndex:0] intValue];
+            NSInteger idx = [[parts objectAtIndex:1] integerValue];
             [[NSDistributedNotificationCenter defaultCenter]
                 postNotificationName:@"AmbrosiaActivateWindow"
                               object:nil
@@ -632,7 +632,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         @"/usr/GNUstep/System/Applications/SystemPreferences.app",
         @"/usr/local/GNUstep/Local/Applications/SystemPreferences.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/SystemPreferences.app", nil],
+            @"GNUstep/Applications/SystemPreferences.app"], nil
     ];
     for (NSString *path in candidates) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -710,7 +710,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         @"/usr/GNUstep/System/Applications/GFinder.app",
         @"/usr/local/GNUstep/Local/Applications/GFinder.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/GFinder.app", nil],
+            @"GNUstep/Applications/GFinder.app"], nil
     ];
     for (NSString *path in candidates) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -771,7 +771,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         @"/usr/GNUstep/System/Applications/Terminal.app",
         @"/usr/local/GNUstep/Local/Applications/Terminal.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/Terminal.app", nil],
+            @"GNUstep/Applications/Terminal.app"], nil
     ];
 
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -840,7 +840,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         @"/usr/GNUstep/System/Applications/SimpleAgenda.app",
         @"/usr/local/GNUstep/Local/Applications/SimpleAgenda.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/SimpleAgenda.app", nil],
+            @"GNUstep/Applications/SimpleAgenda.app"], nil
     ]];
 
     NSFileManager *fm = [NSFileManager defaultManager];

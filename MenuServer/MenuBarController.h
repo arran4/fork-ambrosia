@@ -35,6 +35,10 @@
     WiFiStatusItem       *_wifiItem;
     VolumeStatusItem     *_volumeItem;
     NSInteger             _foreignToken;
+    int32_t               _activeForeignPID;
+    NSString             *_activeForeignName;
+    NSString             *_gfinderLaunchPath;
+    id                    _gfinderLaunchObs;
 }
 
 /** The full-width borderless panel displayed at NSMainMenuWindowLevel. */
