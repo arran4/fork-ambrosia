@@ -30,6 +30,11 @@
     NSString             *_focusedForeignApp;
     NSArray              *_focusedForeignWindows;
     NSMutableDictionary  *_pendingMenus;
+
+    BluetoothStatusItem  *_bluetoothItem;
+    WiFiStatusItem       *_wifiItem;
+    VolumeStatusItem     *_volumeItem;
+    NSInteger             _foreignToken;
 }
 
 /** The full-width borderless panel displayed at NSMainMenuWindowLevel. */
