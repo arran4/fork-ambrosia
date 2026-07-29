@@ -12,6 +12,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <dispatch/dispatch.h>
 #import "TrayItem.h"
 
 @protocol TrayManagerDelegate;

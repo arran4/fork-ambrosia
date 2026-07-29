@@ -1,3 +1,4 @@
+#import <dispatch/dispatch.h>
 /**
  * TrayItem.h
  *
