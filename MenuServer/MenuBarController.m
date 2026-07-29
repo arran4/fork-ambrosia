@@ -454,7 +454,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_observeWorkspace
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    id weakSelf = self;
+    MenuBarController *weakSelf = self;
 
     /* GNUstep does not post activate/deactivate notifications.
      * Use DidLaunchApplication as a best-effort fallback: show the app name
@@ -465,7 +465,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         /* If a DO-registered app is active, it owns the bar — do not
          * override it with the workspace fallback.                      */
@@ -484,7 +484,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         NSNumber *pidNum = [note.userInfo objectForKey:@"NSApplicationProcessIdentifier"];
         int32_t   terminatedPID = pidNum ? (int32_t)[pidNum intValue] : 0;
@@ -649,14 +649,14 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_startTrackingGFinder
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    id weakSelf = self;
+    MenuBarController *weakSelf = self;
 
     _gfinderLaunchObs = [ws.notificationCenter
         addObserverForName:NSWorkspaceDidLaunchApplicationNotification
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
         NSString *bundleID = [info objectForKey:@"NSApplicationBundleIdentifier"];
@@ -673,7 +673,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        id strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
         NSString *bundleID = [info objectForKey:@"NSApplicationBundleIdentifier"];
@@ -694,7 +694,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         /* GFinder is already running — ask the compositor to bring it to focus. */
         NSMutableDictionary *info = [NSMutableDictionary dictionary];
         [info setObject:@"org.gnustep.GFinder" forKey:@"bundleIdentifier"];
-        [info objectForKey:@"appName"]          = @"GFinder";
+        [info setObject:@"GFinder" forKey:@"appName"];
         if (_gfinderLaunchPath.length)
             [info setObject:_gfinderLaunchPath forKey:@"launchPath"];
         [[NSDistributedNotificationCenter defaultCenter]
@@ -819,7 +819,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         @"/usr/bin/konsole",
         @"/usr/bin/xfce4-terminal",
         @"/usr/bin/lxterminal",
-        @"/usr/bin/mate-terminal",, nil];
+        @"/usr/bin/mate-terminal", nil];
     for (NSString *path in fallbacks) {
         if ([fm fileExistsAtPath:path]) {
             [[NSWorkspace sharedWorkspace] launchApplication:path];

@@ -39,6 +39,7 @@
     NSString             *_activeForeignName;
     NSString             *_gfinderLaunchPath;
     id                    _gfinderLaunchObs;
+    id                    _gfinderTerminateObs;
 }
 
 /** The full-width borderless panel displayed at NSMainMenuWindowLevel. */
