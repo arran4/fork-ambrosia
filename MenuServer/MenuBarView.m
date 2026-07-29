@@ -151,37 +151,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
 /* ---------------------------------------------------------------------- */
 
-@implementation MenuBarView {
-    /* ---- Bar state ---- */
-    NSArray *_activeMenuItems;
-    NSString  *_clockString;
-    NSTimer   *_clockTimer;
-
-    /* ---- Pre-computed bar hit rects (view coords, isFlipped=YES) ---- */
-    NSRect              _ambrosiaRect;
-    NSRect              _appNameRect;
-    NSMutableArray     *_menuRects;        /* NSValue(NSRect) per clickable top-level item */
-    NSMutableArray     *_menuItemIndices;  /* NSNumber: index into _activeMenuItems */
-    NSMutableArray     *_pluginRects;      /* NSValue(NSRect) per status plugin button */
-    NSMutableArray     *_trayRects;        /* NSValue(NSRect) per tray icon */
-    NSRect              _clockRect;
-    NSRect              _sessionRect;      /* kept for compat; always NSZeroRect */
-    NSInteger           _pressedRegion;    /* MenuBarRegion; -1 = none */
-
-    /* ---- Inline dropdown state ---- */
-    NSInteger           _openTag;          /* which header is open (MenuBarRegion); -1 = none */
-    NSArray            *_openDescriptors;  /* items for open dropdown; NSDictionary array */
-    /* When the open dropdown belongs to a plugin, store the plugin index. */
-    NSInteger           _openPluginIdx;    /* -1 if not a plugin dropdown */
-    NSMutableArray     *_dropdownRects;    /* NSValue(NSRect) per dropdown row (view coords) */
-    CGFloat             _dropdownX;        /* left edge of open dropdown */
-    CGFloat             _dropdownW;        /* width of open dropdown */
-    NSInteger           _hoveredIdx;       /* hovered item index (-1 = none) */
-
-    /* ---- Vertical slider drag state ---- */
-    NSInteger           _draggingSliderRowIdx;    /* row index in _dropdownRects; -1 = none */
-    NSInteger           _draggingSliderPluginIdx; /* plugin index owning the slider; -1 = none */
-}
+@implementation MenuBarView
 
 @synthesize statusPlugins = _statusPlugins;
 @synthesize trayItems     = _trayItems;
@@ -232,6 +202,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_clockTimer invalidate];
     _clockTimer = nil;
+    [super dealloc];
 }
 
 /* ---------------------------------------------------------------------- */
@@ -738,7 +709,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 }
 
 /** Find the TrayItem whose bus name matches, or nil. */
-- (nullable TrayItem *)_trayItemForBusName:(NSString *)busName
+- (TrayItem *)_trayItemForBusName:(NSString *)busName
 {
     for (TrayItem *it in _trayItems) {
         if ([it.busName isEqualToString:busName]) return it;

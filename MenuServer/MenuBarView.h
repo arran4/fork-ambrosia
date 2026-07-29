@@ -19,6 +19,36 @@
  * Mouse events are dispatched by checking pre-computed hit-test rectangles.
  */
 @interface MenuBarView : NSView <AmbrosiaStatusItemPluginDelegate>
+{
+    MenuBarController  *_controller;
+    NSArray            *_statusPlugins;
+    NSArray            *_trayItems;
+
+    NSString           *_activeAppName;
+    NSArray            *_activeMenuItems;
+    NSString           *_clockString;
+    NSTimer            *_clockTimer;
+
+    NSRect              _ambrosiaRect;
+    NSMutableArray     *_menuRects;
+    NSMutableArray     *_menuItemIndices;
+    NSMutableArray     *_pluginRects;
+    NSMutableArray     *_trayRects;
+    NSRect              _clockRect;
+    NSRect              _sessionRect;
+    NSInteger           _pressedRegion;
+
+    NSInteger           _openTag;
+    NSArray            *_openDescriptors;
+    NSInteger           _openPluginIdx;
+    NSMutableArray     *_dropdownRects;
+    CGFloat             _dropdownX;
+    NSInteger           _hoveredIdx;
+
+    NSInteger           _draggingSliderRowIdx;
+    NSInteger           _draggingSliderPluginIdx;
+}
+
 
 /** Back-pointer to the controller that handles actions. */
 @property (nonatomic, assign) MenuBarController *controller;
