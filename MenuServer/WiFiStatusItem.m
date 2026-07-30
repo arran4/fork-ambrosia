@@ -1,4 +1,5 @@
 #import "WiFiStatusItem.h"
+#import <dispatch/dispatch.h>
 #import <AppKit/AppKit.h>
 
 static const NSTimeInterval kWiFiRefreshInterval = 30.0;
@@ -186,7 +187,7 @@ static NSArray *FetchWiFiConnections(void)
 
 - (void)activateItem:(NSDictionary *)item
 {
-    NSString *ident = item[kMenuItemIdentifier];
+    NSString *ident = [item objectForKey:kMenuItemIdentifier];
     if (!ident.length) return;
 
     if ([ident isEqualToString:kActionWiFiToggle]) {
