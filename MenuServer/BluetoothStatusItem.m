@@ -25,7 +25,7 @@ static NSString *StripANSI(NSString *s)
     if (!s.length) return @"";
     NSRegularExpression *re = [NSRegularExpression
         regularExpressionWithPattern:@"\x1b\\[[0-9;]*[A-Za-z]|\r"
-        options:0 error:nil];
+        options:0 error:NULL];
     return [re stringByReplacingMatchesInString:s
                                         options:0
                                           range:NSMakeRange(0, s.length)
@@ -115,7 +115,7 @@ static NSArray *ParseDeviceList(NSString *output)
             : addr;
         if (!addr.length || [seen containsObject:addr]) continue;
         [seen addObject:addr];
-        [result addObject:@{ kBTDevName: name, kBTDevAddress: addr }];
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:name, kBTDevName, addr, kBTDevAddress, nil]];
     }
     return result;
 }
@@ -138,12 +138,7 @@ static void ParseDeviceInfo(NSString *output,
 
 /* ---------------------------------------------------------------------- */
 
-@implementation BluetoothStatusItem {
-    NSArray *_devices;
-    BOOL                     _btEnabled;
-    NSTimer                 *_timer;
-    id                _delegate;
-}
+@implementation BluetoothStatusItem
 
 @synthesize pluginDelegate = _delegate;
 
@@ -152,7 +147,7 @@ static void ParseDeviceInfo(NSString *output,
     self = [super init];
     if (!self) return nil;
 
-    _devices   = @[];
+    _devices   = [NSArray array];
     _btEnabled = YES;
 
     [self refresh];
@@ -167,6 +162,7 @@ static void ParseDeviceInfo(NSString *output,
 - (void)dealloc
 {
     [_timer invalidate];
+    [super dealloc];
 }
 
 /* ---------------------------------------------------------------------- */
@@ -184,46 +180,30 @@ static void ParseDeviceInfo(NSString *output,
     /* Header row: clickable to toggle Bluetooth on/off.
      * A check mark prefix (U+2713) indicates the adapter is powered on. */
     NSString *headerPrefix = _btEnabled ? @"✓ " : @"   ";
-    [items addObject:@{
-        kMenuItemTitle:      [headerPrefix stringByAppendingString:@"Bluetooth"],
-        kMenuItemIdentifier: kActionToggle,
-        kMenuItemEnabled:    @YES,
-        kMenuItemGrayed:     @(!_btEnabled),
-    }];
-    [items addObject:@{ kMenuItemSeparator: @YES }];
+    [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:[headerPrefix stringByAppendingString:@"Bluetooth"], kMenuItemTitle, kActionToggle, kMenuItemIdentifier, [NSNumber numberWithBool:YES], kMenuItemEnabled, [NSNumber numberWithBool:YES], kMenuItemGrayed, nil]];
+    [items addObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kMenuItemSeparator]];
 
     if (!_btEnabled) {
-        [items addObject:@{ kMenuItemTitle:   @"Bluetooth is turned off",
-                            kMenuItemEnabled: @NO }];
+        [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"Bluetooth is turned off", kMenuItemTitle, [NSNumber numberWithBool:NO], kMenuItemEnabled, nil]];
     } else if (!_devices.count) {
-        [items addObject:@{ kMenuItemTitle:   @"No paired or trusted devices",
-                            kMenuItemEnabled: @NO }];
+        [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"No paired or trusted devices", kMenuItemTitle, [NSNumber numberWithBool:NO], kMenuItemEnabled, nil]];
     } else {
         for (NSDictionary *dev in _devices) {
-            BOOL connected = [dev[kBTDevConnected] boolValue];
-            NSString *name = dev[kBTDevName];
-            NSString *addr = dev[kBTDevAddress];
+            BOOL connected = [[dev objectForKey:kBTDevConnected] boolValue];
+            NSString *name = [dev objectForKey:kBTDevName];
+            NSString *addr = [dev objectForKey:kBTDevAddress];
 
             NSString *actionID = connected
                 ? [kActionDisconnect stringByAppendingString:addr]
                 : [kActionConnect    stringByAppendingString:addr];
 
             /* Connected devices use normal text; disconnected are greyed but clickable. */
-            [items addObject:@{
-                kMenuItemTitle:      name,
-                kMenuItemIdentifier: actionID,
-                kMenuItemEnabled:    @YES,
-                kMenuItemGrayed:     @(!connected),
-            }];
+            [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:name, kMenuItemTitle, actionID, kMenuItemIdentifier, [NSNumber numberWithBool:YES], kMenuItemEnabled, [NSNumber numberWithBool:YES], kMenuItemGrayed, nil]];
         }
     }
 
-    [items addObject:@{ kMenuItemSeparator: @YES }];
-    [items addObject:@{
-        kMenuItemTitle:      @"Open Bluetooth Settings…",
-        kMenuItemIdentifier: @"bt.openprefs",
-        kMenuItemEnabled:    @YES,
-    }];
+    [items addObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kMenuItemSeparator]];
+    [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"Open Bluetooth Settings…", kMenuItemTitle, @"bt.openprefs", kMenuItemIdentifier, [NSNumber numberWithBool:YES], kMenuItemEnabled, nil]];
 
     return items;
 }
@@ -241,20 +221,14 @@ static void ParseDeviceInfo(NSString *output,
             NSArray  *all    = ParseDeviceList(devOut);
 
             for (NSDictionary *dev in all) {
-                NSString *info = BTCtl(@[@"info", dev[kBTDevAddress]]);
+                NSString *info = BTCtl(@[@"info", [dev objectForKey:kBTDevAddress]]);
                 BOOL paired = NO, trusted = NO, connected = NO;
                 ParseDeviceInfo(info, &paired, &trusted, &connected);
 
                 /* Only show devices the user has explicitly paired or trusted. */
                 if (!paired && !trusted && !connected) continue;
 
-                [enriched addObject:@{
-                    kBTDevName:      dev[kBTDevName],
-                    kBTDevAddress:   dev[kBTDevAddress],
-                    kBTDevPaired:    @(paired),
-                    kBTDevTrusted:   @(trusted),
-                    kBTDevConnected: @(connected),
-                }];
+                [enriched addObject:[NSDictionary dictionaryWithObjectsAndKeys:[dev objectForKey:kBTDevName], kBTDevName, [dev objectForKey:kBTDevAddress], kBTDevAddress, [NSNumber numberWithBool:YES], kBTDevPaired, [NSNumber numberWithBool:YES], kBTDevTrusted, [NSNumber numberWithBool:YES], kBTDevConnected, nil]];
             }
 
             /* Sort: connected devices first, then alphabetically by name. */
