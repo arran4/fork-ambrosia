@@ -694,7 +694,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         /* Align dropdown to the left edge of the tray icon slot */
         NSRect slot = NSZeroRect;
         if (ti < (NSInteger)strongSelf->_trayRects.count)
-            slot = [strongSelf->_trayRects[(NSUInteger)ti] rectValue];
+            slot = [[strongSelf->_trayRects objectAtIndex:(NSUInteger)ti] rectValue];
 
         strongSelf->_openTag         = MenuBarRegionTrayItem + ti;
         strongSelf->_openDescriptors = menuItems;
