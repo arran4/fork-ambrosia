@@ -152,6 +152,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 /* ---------------------------------------------------------------------- */
 
 @implementation MenuBarView
+@synthesize controller = _controller;
 
 @synthesize statusPlugins = _statusPlugins;
 @synthesize trayItems     = _trayItems;
@@ -606,7 +607,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
             [title drawAtPoint:NSMakePoint(_dropdownX + kDropPadX, textY)
                 withAttributes:attrs];
 
-            NSString *keyEquiv = item[kMenuItemKeyEquiv];
+            NSString *keyEquiv = [item objectForKey:kMenuItemKeyEquiv];
             if (keyEquiv.length) {
                 NSString *hint = [@"\u2318" stringByAppendingString:keyEquiv.uppercaseString];
                 NSDictionary *hintAttrs = DisabledAttrs();
@@ -664,7 +665,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     NSArray *items = _trayItems;
     if (ti < 0 || ti >= (NSInteger)items.count) return;
-    TrayItem *trayItem = items[(NSUInteger)ti];
+    TrayItem *trayItem = [items objectAtIndex:(NSUInteger)ti];
     void             *conn      = _controller.trayManager.dbusConnection;
     dispatch_queue_t  dbusQueue = _controller.trayManager.dbusQueue;
 
@@ -725,7 +726,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     if (_openTag != MenuBarRegionNone) {
         NSInteger hitIdx = [self _dropdownIndexForPoint:pt];
         if (hitIdx >= 0) {
-            NSDictionary *item = _openDescriptors[(NSUInteger)hitIdx];
+            NSDictionary *item = [_openDescriptors objectAtIndex:(NSUInteger)hitIdx];
             BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
             BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
             BOOL enabled  = [item objectForKey:kMenuItemEnabled]
@@ -828,7 +829,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         _draggingSliderRowIdx >= (NSInteger)_dropdownRects.count) return;
 
     NSRect sliderRowRect =
-        [_dropdownRects[(NSUInteger)_draggingSliderRowIdx] rectValue];
+        [[_dropdownRects objectAtIndex:(NSUInteger)_draggingSliderRowIdx] rectValue];
 
     CGFloat padY     = 18.0;   /* must match kDropSliderH layout in _drawDropdown */
     CGFloat trackTop = sliderRowRect.origin.y + padY;
@@ -842,16 +843,16 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Rebuild _openDescriptors with the updated slider value. */
     NSMutableArray *mutable = [_openDescriptors mutableCopy];
     NSMutableDictionary *sliderItem =
-        [mutable[(NSUInteger)_draggingSliderRowIdx] mutableCopy];
-    sliderItem[kMenuItemSliderValue] = @(newValue);
-    mutable[(NSUInteger)_draggingSliderRowIdx] = sliderItem;
+        [[mutable objectAtIndex:(NSUInteger)_draggingSliderRowIdx] mutableCopy];
+    [sliderItem setObject:[NSNumber numberWithDouble:newValue] forKey:kMenuItemSliderValue];
+    [mutable replaceObjectAtIndex:(NSUInteger)_draggingSliderRowIdx withObject:sliderItem];
     _openDescriptors = [mutable copy];
 
     /* Notify the owning plugin so it applies the volume change. */
     NSArray *plugins = _statusPlugins;
     NSInteger pi = _draggingSliderPluginIdx;
     if (pi >= 0 && pi < (NSInteger)plugins.count)
-        [plugins[(NSUInteger)pi] activateItem:sliderItem];
+        [[plugins objectAtIndex:(NSUInteger)pi] activateItem:sliderItem];
 
     [self setNeedsDisplay:YES];
 }
@@ -928,7 +929,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         NSInteger ti = region - MenuBarRegionTrayItem;
         NSArray *items = _trayItems;
         if (ti < (NSInteger)items.count) {
-            TrayItem *item = items[(NSUInteger)ti];
+            TrayItem *item = [items objectAtIndex:(NSUInteger)ti];
             NSRect   slot  = [[_trayRects objectAtIndex:(NSUInteger)ti] rectValue];
             NSPoint  barPt = NSMakePoint(NSMidX(slot), NSMidY(slot));
             NSPoint  scPt  = [self.window convertBaseToScreen:
@@ -967,9 +968,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     } else if (region >= MenuBarRegionMenuItem) {
         NSInteger idx = region - MenuBarRegionMenuItem;
         if (idx < (NSInteger)_menuItemIndices.count) {
-            NSUInteger activeIdx = [_menuItemIndices[(NSUInteger)idx] unsignedIntegerValue];
+            NSUInteger activeIdx = [[_menuItemIndices objectAtIndex:(NSUInteger)idx] unsignedIntegerValue];
             if (activeIdx < _activeMenuItems.count) {
-                NSDictionary *topItem = _activeMenuItems[activeIdx];
+                NSDictionary *topItem = [_activeMenuItems objectAtIndex:activeIdx];
                 descriptors = [topItem objectForKey:kMenuItemChildren];
                 NSRect r = [[_menuRects objectAtIndex:(NSUInteger)idx] rectValue];
                 openX = r.origin.x;
@@ -1014,7 +1015,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     if (pluginIdx >= 0) {
         NSArray *plugins = _statusPlugins;
         if (pluginIdx < (NSInteger)plugins.count) {
-            id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pluginIdx];
+            id<AmbrosiaStatusItemPlugin> plugin = [plugins objectAtIndex:(NSUInteger)pluginIdx];
             [plugin activateItem:item];
         }
         return;
@@ -1022,9 +1023,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
     /* dbusmenu tray items carry a bus name and integer item id.
      * Trigger via com.canonical.dbusmenu Event() instead of a notification. */
-    NSString *trayBusName = item[@"_trayBusName"];
+    NSString *trayBusName = [item objectForKey:@"_trayBusName"];
     if (trayBusName.length) {
-        NSNumber *menuItemId = item[@"_dbusMenuId"];
+        NSNumber *menuItemId = [item objectForKey:@"_dbusMenuId"];
         if (menuItemId) {
             TrayItem *trayItem = [self _trayItemForBusName:trayBusName];
             if (trayItem) {
@@ -1037,7 +1038,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     }
 
     /* System-menu items carry a selector name */
-    NSString *selName = item[kSysItemSel];
+    NSString *selName = [item objectForKey:kSysItemSel];
     if (selName.length) {
         SEL sel = NSSelectorFromString(selName);
         if ([self respondsToSelector:sel]) {
@@ -1048,7 +1049,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     }
 
     /* App-menu items carry a kMenuItemIdentifier */
-    NSString *identifier = item[kMenuItemIdentifier];
+    NSString *identifier = [item objectForKey:kMenuItemIdentifier];
     if (identifier.length) {
         [_controller performMenuItemWithIdentifier:identifier];
     }
@@ -1061,11 +1062,11 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     return @[
         @{ kSysItemTitle: @"About Ambrosia\u2026",       kSysItemSel: @"_doAbout" },
-        @{ kSysItemSep: @YES },
+        [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kSysItemSep],
         @{ kSysItemTitle: @"System Preferences\u2026",   kSysItemSel: @"_doPreferences" },
         @{ kSysItemTitle: @"Open Terminal",              kSysItemSel: @"_doTerminal" },
         @{ kSysItemTitle: @"Files",                      kSysItemSel: @"_doGFinder" },
-        @{ kSysItemSep: @YES },
+        [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kSysItemSep],
         @{ kSysItemTitle: @"Log Out\u2026",              kSysItemSel: @"_doLogout" },
         @{ kSysItemTitle: @"Shut Down\u2026",            kSysItemSel: @"_doShutdown" },
         @{ kSysItemTitle: @"Restart\u2026",              kSysItemSel: @"_doReboot" },
@@ -1086,7 +1087,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     NSDate *now = [NSDate date];
 
     NSCalendar *cal = [NSCalendar currentCalendar];
-    NSInteger day = [cal component:NSCalendarUnitDay fromDate:now];
+    NSInteger day = [cal component:NSDayCalendarUnit fromDate:now];
 
     NSDateFormatter *monthYearFmt = [[NSDateFormatter alloc] init];
     [monthYearFmt setDateFormat:@"MMMM yyyy"];
@@ -1100,8 +1101,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
                         (long)day, OrdinalSuffixForDay(day), monthYear, time];
 
     return @[
-        @{ kSysItemTitle: title, kMenuItemEnabled: @NO },
-        @{ kSysItemSep: @YES },
+        [NSDictionary dictionaryWithObjectsAndKeys:title, kSysItemTitle, [NSNumber numberWithBool:NO], kMenuItemEnabled, nil],
+        [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kSysItemSep],
         @{ kSysItemTitle: @"Launch Calendar", kSysItemSel: @"_doLaunchCalendar" },
     ];
 }
