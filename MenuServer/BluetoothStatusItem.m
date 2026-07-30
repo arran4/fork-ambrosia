@@ -1,4 +1,5 @@
 #import "BluetoothStatusItem.h"
+#import <dispatch/dispatch.h>
 #import <AppKit/AppKit.h>
 
 /* Refresh interval in seconds */
@@ -234,10 +235,10 @@ static void ParseDeviceInfo(NSString *output,
             /* Sort: connected devices first, then alphabetically by name. */
             [enriched sortUsingComparator:^NSComparisonResult(NSDictionary *a,
                                                                NSDictionary *b) {
-                BOOL ac = [a[kBTDevConnected] boolValue];
-                BOOL bc = [b[kBTDevConnected] boolValue];
+                BOOL ac = [[a objectForKey:kBTDevConnected] boolValue];
+                BOOL bc = [[b objectForKey:kBTDevConnected] boolValue];
                 if (ac != bc) return ac ? NSOrderedAscending : NSOrderedDescending;
-                return [a[kBTDevName] compare:b[kBTDevName]
+                return [[a objectForKey:kBTDevName] compare:[b objectForKey:kBTDevName]
                                       options:NSCaseInsensitiveSearch];
             }];
         }
@@ -255,7 +256,7 @@ static void ParseDeviceInfo(NSString *output,
 
 - (void)activateItem:(NSDictionary *)item
 {
-    NSString *ident = item[kMenuItemIdentifier];
+    NSString *ident = [item objectForKey:kMenuItemIdentifier];
     if (!ident.length) return;
 
     if ([ident isEqualToString:kActionToggle]) {
