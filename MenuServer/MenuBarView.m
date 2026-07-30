@@ -669,11 +669,11 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     void             *conn      = _controller.trayManager.dbusConnection;
     dispatch_queue_t  dbusQueue = _controller.trayManager.dbusQueue;
 
-    id weakSelf = self;
+    MenuBarView *weakSelf = self;
     [trayItem fetchMenuItemsWithConnection:conn
                                  dbusQueue:dbusQueue
                                 completion:^(NSArray *menuItems) {
-        id strongSelf = weakSelf;
+        MenuBarView *strongSelf = weakSelf;
         if (!strongSelf) return;
 
         if (menuItems.count == 0) {
@@ -1087,7 +1087,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     NSDate *now = [NSDate date];
 
     NSCalendar *cal = [NSCalendar currentCalendar];
-    NSInteger day = [cal component:NSDayCalendarUnit fromDate:now];
+    NSDateComponents *comp = [cal components:NSDayCalendarUnit fromDate:now];
+    NSInteger day = [comp day];
 
     NSDateFormatter *monthYearFmt = [[NSDateFormatter alloc] init];
     [monthYearFmt setDateFormat:@"MMMM yyyy"];
