@@ -43,6 +43,7 @@
     NSInteger           _openPluginIdx;
     NSMutableArray     *_dropdownRects;
     CGFloat             _dropdownX;
+    CGFloat             _dropdownW;
     NSInteger           _hoveredIdx;
 
     NSInteger           _draggingSliderRowIdx;
