@@ -18,5 +18,12 @@
 #import "AmbrosiaStatusItemPlugin.h"
 
 @interface WiFiStatusItem : NSObject <AmbrosiaStatusItemPlugin>
+{
+    NSTimer  *_timer;
+    BOOL      _wifiEnabled;
+    NSArray  *_connections;
+    id<AmbrosiaStatusItemPluginDelegate> _delegate;
+}
+
 - (instancetype)init;
 @end

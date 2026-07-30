@@ -96,25 +96,20 @@ static NSArray *FetchWiFiConnections(void)
             [type caseInsensitiveCompare:@"802-11-wireless"]  != NSOrderedSame)
             continue;
         BOOL isActive = [active caseInsensitiveCompare:@"yes"] == NSOrderedSame;
-        [result addObject:@{ kWiFiName: name, kWiFiActive: @(isActive) }];
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:name, kWiFiName, [NSNumber numberWithBool:isActive], kWiFiActive, nil]];
     }
     [result sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
-        BOOL aa = [a[kWiFiActive] boolValue];
-        BOOL ba = [b[kWiFiActive] boolValue];
+        BOOL aa = [[a objectForKey:kWiFiActive] boolValue];
+        BOOL ba = [[b objectForKey:kWiFiActive] boolValue];
         if (aa != ba) return aa ? NSOrderedAscending : NSOrderedDescending;
-        return [a[kWiFiName] compare:b[kWiFiName] options:NSCaseInsensitiveSearch];
+        return [[a objectForKey:kWiFiName] compare:[b objectForKey:kWiFiName] options:NSCaseInsensitiveSearch];
     }];
     return result;
 }
 
 /* ---------------------------------------------------------------------- */
 
-@implementation WiFiStatusItem {
-    NSArray *_connections;
-    BOOL                     _wifiEnabled;
-    NSTimer                 *_timer;
-    id                _delegate;
-}
+@implementation WiFiStatusItem
 
 @synthesize pluginDelegate = _delegate;
 
@@ -122,7 +117,7 @@ static NSArray *FetchWiFiConnections(void)
 {
     self = [super init];
     if (!self) return nil;
-    _connections = @[];
+    _connections = [NSArray array];
     _wifiEnabled = YES;
     [self refresh];
     _timer = [NSTimer scheduledTimerWithTimeInterval:kWiFiRefreshInterval
@@ -133,7 +128,7 @@ static NSArray *FetchWiFiConnections(void)
     return self;
 }
 
-- (void)dealloc { [_timer invalidate]; }
+- (void)dealloc { [_timer invalidate]; [super dealloc]; }
 
 /* ---------------------------------------------------------------------- */
 #pragma mark - AmbrosiaStatusItemPlugin
@@ -147,45 +142,29 @@ static NSArray *FetchWiFiConnections(void)
     /* Header row: clickable to toggle the Wi-Fi radio on/off.
      * A check mark prefix (U+2713) indicates the radio is on. */
     NSString *headerPrefix = _wifiEnabled ? @"✓ " : @"   ";
-    [items addObject:@{
-        kMenuItemTitle:      [headerPrefix stringByAppendingString:@"Wi-Fi"],
-        kMenuItemIdentifier: kActionWiFiToggle,
-        kMenuItemEnabled:    @YES,
-        kMenuItemGrayed:     @(!_wifiEnabled),
-    }];
-    [items addObject:@{ kMenuItemSeparator: @YES }];
+    [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:[headerPrefix stringByAppendingString:@"Wi-Fi"], kMenuItemTitle, kActionWiFiToggle, kMenuItemIdentifier, [NSNumber numberWithBool:YES], kMenuItemEnabled, [NSNumber numberWithBool:!_wifiEnabled], kMenuItemGrayed, nil]];
+    [items addObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kMenuItemSeparator]];
 
     if (!_wifiEnabled) {
-        [items addObject:@{ kMenuItemTitle:   @"Wi-Fi is turned off",
-                            kMenuItemEnabled: @NO }];
+        [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"Wi-Fi is turned off", kMenuItemTitle, [NSNumber numberWithBool:NO], kMenuItemEnabled, nil]];
     } else if (_connections.count == 0) {
-        [items addObject:@{ kMenuItemTitle:   @"No configured Wi-Fi networks",
-                            kMenuItemEnabled: @NO }];
+        [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"No configured Wi-Fi networks", kMenuItemTitle, [NSNumber numberWithBool:NO], kMenuItemEnabled, nil]];
     } else {
         for (NSDictionary *c in _connections) {
-            BOOL     active  = [c[kWiFiActive] boolValue];
-            NSString *name   = c[kWiFiName];
+            BOOL     active  = [[c objectForKey:kWiFiActive] boolValue];
+            NSString *name   = [c objectForKey:kWiFiName];
             /* U+2713 = check mark; three spaces align inactive items */
             NSString *prefix = active ? @"✓ " : @"   ";
             NSString *title  = [prefix stringByAppendingString:name];
             NSString *action = active
                 ? [kActionWiFiDisconnect stringByAppendingString:name]
                 : [kActionWiFiConnect    stringByAppendingString:name];
-            [items addObject:@{
-                kMenuItemTitle:      title,
-                kMenuItemIdentifier: action,
-                kMenuItemEnabled:    @YES,
-                kMenuItemGrayed:     @(!active),
-            }];
+            [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:title, kMenuItemTitle, action, kMenuItemIdentifier, [NSNumber numberWithBool:YES], kMenuItemEnabled, [NSNumber numberWithBool:!active], kMenuItemGrayed, nil]];
         }
     }
 
-    [items addObject:@{ kMenuItemSeparator: @YES }];
-    [items addObject:@{
-        kMenuItemTitle:      @"Open Network Preferences…",
-        kMenuItemIdentifier: kActionWiFiPrefs,
-        kMenuItemEnabled:    @YES,
-    }];
+    [items addObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kMenuItemSeparator]];
+    [items addObject:[NSDictionary dictionaryWithObjectsAndKeys:@"Open Network Preferences…", kMenuItemTitle, kActionWiFiPrefs, kMenuItemIdentifier, [NSNumber numberWithBool:YES], kMenuItemEnabled, nil]];
     return items;
 }
 
@@ -193,7 +172,7 @@ static NSArray *FetchWiFiConnections(void)
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         BOOL       enabled = FetchWiFiEnabled();
-        NSArray   *conns   = enabled ? FetchWiFiConnections() : @[];
+        NSArray   *conns   = enabled ? FetchWiFiConnections() : [NSArray array];
         dispatch_async(dispatch_get_main_queue(), ^{
             self->_wifiEnabled  = enabled;
             self->_connections  = conns;
