@@ -34,12 +34,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
 
 /* ---------------------------------------------------------------------- */
 
-@implementation TrayManager {
-    DBusConnection             *_conn;
-    NSMutableArray *_items;
-    dispatch_queue_t            _dbusQueue;
-    dispatch_source_t           _dispatchSource; /* GCD timer drives D-Bus dispatch */
-}
+@implementation TrayManager
 
 @synthesize dbusQueue = _dbusQueue;
 
@@ -51,7 +46,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
     if (!self) return nil;
     _items     = [NSMutableArray array];
     _dbusQueue = dispatch_queue_create("ambrosia.tray.dbus",
-                                       DISPATCH_QUEUE_SERIAL);
+                                       NULL);
     return self;
 }
 
@@ -61,6 +56,13 @@ static const DBusObjectPathVTable kWatcherVTable = {
         dispatch_source_cancel(_dispatchSource);
         _dispatchSource = nil;
     }
+    if (_conn) {
+        dbus_connection_close((DBusConnection *)_conn);
+        dbus_connection_unref((DBusConnection *)_conn);
+        _conn = NULL;
+    }
+    [super dealloc];
+}
     if (_conn) {
         dbus_connection_close(_conn);
         dbus_connection_unref(_conn);

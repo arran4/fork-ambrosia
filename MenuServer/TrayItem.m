@@ -445,11 +445,11 @@ static NSDictionary *ReadPropertiesDict(DBusMessageIter *arrIter)
             } else if (vt == DBUS_TYPE_INT32) {
                 dbus_int32_t val = 0;
                 dbus_message_iter_get_basic(&varIter, &val);
-                [props setObject:[NSString stringWithUTF8String:val] forKey:[NSString stringWithUTF8String:key]];
+                [props setObject:[NSNumber numberWithInt:val] forKey:[NSString stringWithUTF8String:key]];
             } else if (vt == DBUS_TYPE_UINT32) {
                 dbus_uint32_t val = 0;
                 dbus_message_iter_get_basic(&varIter, &val);
-                [props setObject:[NSString stringWithUTF8String:val] forKey:[NSString stringWithUTF8String:key]];
+                [props setObject:[NSNumber numberWithUnsignedInt:val] forKey:[NSString stringWithUTF8String:key]];
             }
         }
         dbus_message_iter_next(arrIter);
