@@ -1,4 +1,6 @@
 #import "NSApplication+AmbrosiaMenus.h"
+#import <dispatch/dispatch.h>
+#import <AppKit/NSWindow.h>
 #import "AmbrosiaMenusBundle.h"
 #import <AppKit/NSMenu.h>
 #import <objc/runtime.h>
