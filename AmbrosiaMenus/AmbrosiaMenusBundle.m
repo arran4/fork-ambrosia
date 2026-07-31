@@ -208,12 +208,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
  */
 - (NSString *)_identifierForItem:(NSMenuItem *)item
 {
-    NSString *existing = objc_getAssociatedObject(item, (const void *)kAmbrosiaItemIDKey);
-    if (existing) return existing;
-    NSString *newID = [[NSUUID UUID] UUIDString];
-    objc_setAssociatedObject(item, kAmbrosiaItemIDKey, newID,
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    return newID;
+    return [NSString stringWithFormat:@"%p", item];
 }
 
 /**
@@ -314,7 +309,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
  */
 - (void)_compositorDidActivateApp:(NSNotification *)note
 {
-    NSNumber *pidNum = note.userInfo[kAmbrosiaActivatedPIDKey];
+    NSNumber *pidNum = [note.userInfo objectForKey:kAmbrosiaActivatedPIDKey];
     int32_t myPID = (int32_t)[[NSProcessInfo processInfo] processIdentifier];
     if (!pidNum || [pidNum intValue] != myPID) return;
     [self registerMenuWithServer];
@@ -330,16 +325,16 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
  */
 - (void)_menuItemSelected:(NSNotification *)note
 {
-    NSNumber *pidNum = note.userInfo[kMenuItemSelectedPIDKey];
+    NSNumber *pidNum = [note.userInfo objectForKey:kMenuItemSelectedPIDKey];
     int32_t   myPID  = (int32_t)[[NSProcessInfo processInfo] processIdentifier];
     if (!pidNum || [pidNum intValue] != myPID) return;
 
-    NSString *identifier = note.userInfo[kMenuItemSelectedIdentifierKey];
+    NSString *identifier = [note.userInfo objectForKey:kMenuItemSelectedIdentifierKey];
     if (!identifier.length) return;
 
     /* Dispatch on the main thread; the notification may arrive on any thread. */
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSMenuItem *item = self->_itemTable[identifier];
+        NSMenuItem *item = [self->_itemTable objectForKey:identifier];
         if (!item) {
             NSLog(@"AmbrosiaMenus: received unknown identifier: %@", identifier);
             return;
