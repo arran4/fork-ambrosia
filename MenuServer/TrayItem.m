@@ -172,13 +172,7 @@ static NSImage *ImageFromIconPixmapIter(DBusMessageIter *arrayIter)
 
 /* ---------------------------------------------------------------------- */
 
-@implementation TrayItem {
-    NSString *_busName;
-    NSString *_objectPath;
-    NSImage  *_icon;
-    NSString *_title;
-    NSString *_menuPath;   /* com.canonical.dbusmenu object path, or nil */
-}
+@implementation TrayItem
 
 @synthesize busName    = _busName;
 @synthesize objectPath = _objectPath;
@@ -443,7 +437,7 @@ static NSDictionary *ReadPropertiesDict(DBusMessageIter *arrIter)
             if (vt == DBUS_TYPE_STRING || vt == DBUS_TYPE_OBJECT_PATH) {
                 const char *val = NULL;
                 dbus_message_iter_get_basic(&varIter, &val);
-                if (val) [props setObject:[NSNumber numberWithInt:val] forKey:[NSString stringWithUTF8String:key]];
+                if (val) [props setObject:[NSString stringWithUTF8String:val] forKey:[NSString stringWithUTF8String:key]];
             } else if (vt == DBUS_TYPE_BOOLEAN) {
                 dbus_bool_t val = FALSE;
                 dbus_message_iter_get_basic(&varIter, &val);
@@ -451,11 +445,11 @@ static NSDictionary *ReadPropertiesDict(DBusMessageIter *arrIter)
             } else if (vt == DBUS_TYPE_INT32) {
                 dbus_int32_t val = 0;
                 dbus_message_iter_get_basic(&varIter, &val);
-                [props setObject:[NSNumber numberWithInt:val] forKey:[NSString stringWithUTF8String:key]];
+                [props setObject:[NSString stringWithUTF8String:val] forKey:[NSString stringWithUTF8String:key]];
             } else if (vt == DBUS_TYPE_UINT32) {
                 dbus_uint32_t val = 0;
                 dbus_message_iter_get_basic(&varIter, &val);
-                [props setObject:[NSNumber numberWithInt:val] forKey:[NSString stringWithUTF8String:key]];
+                [props setObject:[NSString stringWithUTF8String:val] forKey:[NSString stringWithUTF8String:key]];
             }
         }
         dbus_message_iter_next(arrIter);
@@ -539,14 +533,14 @@ static NSArray *ParseDBusMenuNode(DBusMessageIter *nodeIter,
     NSString *cleanLbl = StripMnemonic(label.UTF8String);
 
     NSMutableDictionary *item = [NSMutableDictionary dictionary];
-    item[kMenuItemTitle]   = cleanLbl.length ? cleanLbl : @"";
-    item[kMenuItemEnabled] = enabled ? enabled : @YES;
+    [item setObject:(cleanLbl.length ? cleanLbl : @"") forKey:kMenuItemTitle];
+    [item setObject:(enabled ? enabled : [NSNumber numberWithBool:YES]) forKey:kMenuItemEnabled];
     [item setObject:busName forKey:kTrayMenuBusName];
-    item[kTrayMenuPath]    = menuPath;
-    item[kTrayMenuItemId]  = @(itemId);
+    [item setObject:menuPath forKey:kTrayMenuPath];
+    [item setObject:[NSNumber numberWithInt:itemId] forKey:kTrayMenuItemId];
 
     if (children.count > 0)
-        item[kMenuItemChildren] = [children copy];
+        [item setObject:[children copy] forKey:kMenuItemChildren];
 
     return @[[item copy]];
 }
