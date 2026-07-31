@@ -18,5 +18,11 @@
 #import "AmbrosiaStatusItemPlugin.h"
 
 @interface VolumeStatusItem : NSObject <AmbrosiaStatusItemPlugin>
+{
+    NSTimer  *_timer;
+    CGFloat   _volume;
+    id<AmbrosiaStatusItemPluginDelegate> _delegate;
+}
+
 - (instancetype)init;
 @end

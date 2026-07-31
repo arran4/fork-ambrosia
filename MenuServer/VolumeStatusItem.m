@@ -1,4 +1,5 @@
 #import "VolumeStatusItem.h"
+#import <dispatch/dispatch.h>
 #import <AppKit/AppKit.h>
 
 static const NSTimeInterval kVolumeRefreshInterval = 10.0;
@@ -25,7 +26,7 @@ static CGFloat FetchVolume(void)
 
     /* pactl output: "Volume: front-left: 65536 / 100% / 0.00 dB, ..." */
     NSRegularExpression *re = [NSRegularExpression
-        regularExpressionWithPattern:@"(\\d+)%" options:0 error:nil];
+        regularExpressionWithPattern:@"(\\d+)%" options:0 error:NULL];
     NSTextCheckingResult *m = [re firstMatchInString:out
                                              options:0
                                                range:NSMakeRange(0, out.length)];
@@ -46,11 +47,7 @@ static void ApplyVolume(CGFloat percent)
 
 /* ---------------------------------------------------------------------- */
 
-@implementation VolumeStatusItem {
-    CGFloat  _volume;   /* 0..100 */
-    NSTimer *_timer;
-    id _delegate;
-}
+@implementation VolumeStatusItem
 
 @synthesize pluginDelegate = _delegate;
 
@@ -68,7 +65,7 @@ static void ApplyVolume(CGFloat percent)
     return self;
 }
 
-- (void)dealloc { [_timer invalidate]; }
+- (void)dealloc { [_timer invalidate]; [super dealloc]; }
 
 /* ---------------------------------------------------------------------- */
 #pragma mark - AmbrosiaStatusItemPlugin
@@ -80,12 +77,8 @@ static void ApplyVolume(CGFloat percent)
 
 - (NSArray *)dropdownItems
 {
-    return @[
-/*        @{ kMenuItemTitle:   @"Output Volume", kMenuItemEnabled: @NO },
-        @{ kMenuItemSeparator: @YES },*/
-        /* Vertical slider row — rendered specially by MenuBarView. */
-        @{ kMenuItemSlider:      @YES,
-           kMenuItemSliderValue: @(_volume) },
+    return [NSArray arrayWithObject:
+        [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kMenuItemSlider, [NSNumber numberWithDouble:_volume], kMenuItemSliderValue, nil]
     ];
 }
 
@@ -106,7 +99,7 @@ static void ApplyVolume(CGFloat percent)
 - (void)activateItem:(NSDictionary *)item
 {
     /* Called by MenuBarView whenever the slider value changes during drag. */
-    NSNumber *val = item[kMenuItemSliderValue];
+    NSNumber *val = [item objectForKey:kMenuItemSliderValue];
     if (!val) return;
     _volume = val.doubleValue;
     /* Apply asynchronously so the UI stays responsive during dragging. */
