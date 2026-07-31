@@ -18,6 +18,15 @@
 @protocol TrayItemDelegate;
 
 @interface TrayItem : NSObject
+{
+    NSString *_busName;
+    NSString *_objectPath;
+    NSImage  *_icon;
+    NSString *_title;
+    NSString *_menuPath;
+    id<TrayItemDelegate> _delegate;
+}
+
 
 /** D-Bus sender name (bus name, e.g. ":1.42"). */
 @property (nonatomic, readonly, copy) NSString *busName;
