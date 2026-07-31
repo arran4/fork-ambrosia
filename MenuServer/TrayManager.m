@@ -54,7 +54,7 @@ static const DBusObjectPathVTable kWatcherVTable = {
 {
     if (_dispatchSource) {
         dispatch_source_cancel(_dispatchSource);
-        _dispatchSource = nil;
+        _dispatchSource = NULL;
     }
     if (_conn) {
         dbus_connection_close((DBusConnection *)_conn);
@@ -63,12 +63,6 @@ static const DBusObjectPathVTable kWatcherVTable = {
     }
     [super dealloc];
 }
-    if (_conn) {
-        dbus_connection_close(_conn);
-        dbus_connection_unref(_conn);
-    }
-}
-
 - (NSArray *)trayItems { return [_items copy]; }
 - (void *)dbusConnection           { return _conn; }
 
@@ -170,18 +164,18 @@ static const DBusObjectPathVTable kWatcherVTable = {
         20 * NSEC_PER_MSEC,   /* 20 ms interval — low latency for signals  */
         5  * NSEC_PER_MSEC);  /* 5 ms leeway                               */
 
-    id weakSelf = self;
+    TrayManager *weakSelf = self;
     dispatch_source_set_event_handler(_dispatchSource, ^{
-        id strongSelf = weakSelf;
+        TrayManager *strongSelf = weakSelf;
         if (!strongSelf || !strongSelf->_conn) return;
-        if (!dbus_connection_get_is_connected(strongSelf->_conn)) {
+        if (!dbus_connection_get_is_connected((DBusConnection *)strongSelf->_conn)) {
             NSLog(@"TrayManager: D-Bus connection lost.");
             dispatch_source_cancel(strongSelf->_dispatchSource);
             return;
         }
         /* Non-blocking read from the socket, then dispatch pending messages */
-        dbus_connection_read_write(strongSelf->_conn, 0);
-        while (dbus_connection_dispatch(strongSelf->_conn) ==
+        dbus_connection_read_write((DBusConnection *)strongSelf->_conn, 0);
+        while (dbus_connection_dispatch((DBusConnection *)strongSelf->_conn) ==
                DBUS_DISPATCH_DATA_REMAINS) {}
     });
 
@@ -345,7 +339,7 @@ static DBusHandlerResult watcherMessageHandler(DBusConnection *conn,
     dispatch_async(dispatch_get_main_queue(), ^{
         NSUInteger idx = NSNotFound;
         for (NSUInteger i = 0; i < self->_items.count; i++) {
-            if ([self->_items[i].busName isEqualToString:busName]) {
+            if ([[(TrayItem *)[self->_items objectAtIndex:i] busName] isEqualToString:busName]) {
                 idx = i;
                 break;
             }
