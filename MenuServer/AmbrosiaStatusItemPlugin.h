@@ -30,7 +30,7 @@
  * the kMenuItemGrayed extension key.
  * Return nil or an empty array to disable the dropdown.
  */
-@property (nonatomic, readonly) NSArray<NSDictionary *> *dropdownItems;
+@property (nonatomic, readonly) NSArray *dropdownItems;
 
 /**
  * Called on a background queue approximately every 30 seconds, and also
@@ -52,7 +52,7 @@
  * Delegate set by MenuBarController so the plugin can request a bar redraw
  * after -refresh completes.
  */
-@property (nonatomic, weak) id pluginDelegate;
+@property (nonatomic, assign) id pluginDelegate;
 
 @end
 

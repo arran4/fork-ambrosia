@@ -12,17 +12,26 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <dispatch/dispatch.h>
 #import "TrayItem.h"
 
 @protocol TrayManagerDelegate;
 
 @interface TrayManager : NSObject <TrayItemDelegate>
+{
+    void                       *_conn;
+    NSMutableArray             *_items;
+    dispatch_queue_t            _dbusQueue;
+    dispatch_source_t           _dispatchSource;
+    id<TrayManagerDelegate>     _delegate;
+}
+
 
 /** Currently registered tray items (ordered by registration time). */
-@property (nonatomic, readonly, copy) NSArray<TrayItem *> *trayItems;
+@property (nonatomic, readonly, copy) NSArray *trayItems;
 
 /** Delegate notified when items are added, removed, or updated. */
-@property (nonatomic, weak) id<TrayManagerDelegate> delegate;
+@property (nonatomic, assign) id<TrayManagerDelegate> delegate;
 
 /**
  * Connect to the session D-Bus, register org.kde.StatusNotifierWatcher,

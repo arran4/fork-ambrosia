@@ -25,15 +25,15 @@ static NSString * const kTrayMenuPath    = @"_trayMenuPath";
 static NSString * const kTrayMenuItemId  = @"_dbusMenuId";
 
 /* XDG icon size preference order for bar icons */
-static NSArray<NSString *> *IconSizes(void)
+static NSArray *IconSizes(void)
 {
-    return @[@"22x22", @"16x16", @"24x24", @"32x32", @"scalable"];
+    return [NSArray arrayWithObjects:@"22x22", @"16x16", @"24x24", @"32x32", @"scalable", nil];
 }
 
 /* XDG subdirectory categories to search */
-static NSArray<NSString *> *IconCategories(void)
+static NSArray *IconCategories(void)
 {
-    return @[@"apps", @"status", @"devices", @"mimetypes", @"places"];
+    return [NSArray arrayWithObjects:@"apps", @"status", @"devices", @"mimetypes", @"places", nil];
 }
 
 /* Locate a PNG by icon name in the hicolor theme and /usr/share/pixmaps. */
@@ -47,20 +47,20 @@ static NSString *FindIconPath(NSString *iconName)
                ? iconName : nil;
     }
 
-    NSArray<NSString *> *bases = @[
+    NSArray *bases = @[
         @"/usr/share/icons/hicolor",
         @"/usr/share/icons/Adwaita",
         @"/usr/share/icons/gnome",
         @"/usr/share/icons/oxygen",
     ];
-    NSArray<NSString *> *sizes = IconSizes();
-    NSArray<NSString *> *cats  = IconCategories();
+    NSArray *sizes = IconSizes();
+    NSArray *cats  = IconCategories();
     NSFileManager *fm = [NSFileManager defaultManager];
 
     for (NSString *base in bases) {
         for (NSString *size in sizes) {
             for (NSString *cat in cats) {
-                for (NSString *ext in @[@"png", @"xpm"]) {
+                for (NSString *ext in [NSArray arrayWithObjects:@"png", @"xpm", nil]) {
                     NSString *path = [NSString stringWithFormat:
                         @"%@/%@/%@/%@.%@", base, size, cat, iconName, ext];
                     if ([fm fileExistsAtPath:path]) return path;
@@ -70,7 +70,7 @@ static NSString *FindIconPath(NSString *iconName)
     }
 
     /* pixmaps fallback */
-    for (NSString *ext in @[@"png", @"xpm", @"svg"]) {
+    for (NSString *ext in [NSArray arrayWithObjects:@"png", @"xpm", @"svg", nil]) {
         NSString *path = [NSString stringWithFormat:
             @"/usr/share/pixmaps/%@.%@", iconName, ext];
         if ([fm fileExistsAtPath:path]) return path;
@@ -172,13 +172,7 @@ static NSImage *ImageFromIconPixmapIter(DBusMessageIter *arrayIter)
 
 /* ---------------------------------------------------------------------- */
 
-@implementation TrayItem {
-    NSString *_busName;
-    NSString *_objectPath;
-    NSImage  *_icon;
-    NSString *_title;
-    NSString *_menuPath;   /* com.canonical.dbusmenu object path, or nil */
-}
+@implementation TrayItem
 
 @synthesize busName    = _busName;
 @synthesize objectPath = _objectPath;
@@ -443,19 +437,19 @@ static NSDictionary *ReadPropertiesDict(DBusMessageIter *arrIter)
             if (vt == DBUS_TYPE_STRING || vt == DBUS_TYPE_OBJECT_PATH) {
                 const char *val = NULL;
                 dbus_message_iter_get_basic(&varIter, &val);
-                if (val) props[@(key)] = @(val);
+                if (val) [props setObject:[NSString stringWithUTF8String:val] forKey:[NSString stringWithUTF8String:key]];
             } else if (vt == DBUS_TYPE_BOOLEAN) {
                 dbus_bool_t val = FALSE;
                 dbus_message_iter_get_basic(&varIter, &val);
-                props[@(key)] = @(val ? YES : NO);
+                [props setObject:[NSNumber numberWithBool:val ? YES : NO] forKey:[NSString stringWithUTF8String:key]];
             } else if (vt == DBUS_TYPE_INT32) {
                 dbus_int32_t val = 0;
                 dbus_message_iter_get_basic(&varIter, &val);
-                props[@(key)] = @(val);
+                [props setObject:[NSNumber numberWithInt:val] forKey:[NSString stringWithUTF8String:key]];
             } else if (vt == DBUS_TYPE_UINT32) {
                 dbus_uint32_t val = 0;
                 dbus_message_iter_get_basic(&varIter, &val);
-                props[@(key)] = @(val);
+                [props setObject:[NSNumber numberWithUnsignedInt:val] forKey:[NSString stringWithUTF8String:key]];
             }
         }
         dbus_message_iter_next(arrIter);
@@ -480,7 +474,7 @@ static NSArray *ParseDBusMenuNode(DBusMessageIter *nodeIter,
                                   BOOL isRoot)
 {
     if (dbus_message_iter_get_arg_type(nodeIter) != DBUS_TYPE_STRUCT)
-        return @[];
+        return [NSArray array];
 
     DBusMessageIter si;
     dbus_message_iter_recurse(nodeIter, &si);
@@ -519,34 +513,34 @@ static NSArray *ParseDBusMenuNode(DBusMessageIter *nodeIter,
     if (isRoot) return [children copy];
 
     /* Separator */
-    NSString *type  = props[@"type"];
-    NSString *label = props[@"label"];
+    NSString *type  = [props objectForKey:@"type"];
+    NSString *label = [props objectForKey:@"label"];
     if ([type isEqualToString:@"separator"] || (!label.length && !type.length)) {
-        return @[@{
-            kMenuItemSeparator: @YES,
-            kTrayMenuBusName:   busName,
-            kTrayMenuPath:      menuPath,
-            kTrayMenuItemId:    @(itemId),
-        }];
+                return [NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithBool:YES], kMenuItemSeparator,
+            busName, kTrayMenuBusName,
+            menuPath, kTrayMenuPath,
+            [NSNumber numberWithInt:itemId], kTrayMenuItemId,
+            nil]];
     }
 
     /* Hidden items */
-    NSNumber *visible = props[@"visible"];
-    if (visible && ![visible boolValue]) return @[];
+    NSNumber *visible = [props objectForKey:@"visible"];
+    if (visible && ![visible boolValue]) return [NSArray array];
 
     /* Regular item */
-    NSNumber *enabled  = props[@"enabled"];
+    NSNumber *enabled  = [props objectForKey:@"enabled"];
     NSString *cleanLbl = StripMnemonic(label.UTF8String);
 
     NSMutableDictionary *item = [NSMutableDictionary dictionary];
-    item[kMenuItemTitle]   = cleanLbl.length ? cleanLbl : @"";
-    item[kMenuItemEnabled] = enabled ? enabled : @YES;
-    item[kTrayMenuBusName] = busName;
-    item[kTrayMenuPath]    = menuPath;
-    item[kTrayMenuItemId]  = @(itemId);
+    [item setObject:(cleanLbl.length ? cleanLbl : @"") forKey:kMenuItemTitle];
+    [item setObject:(enabled ? enabled : [NSNumber numberWithBool:YES]) forKey:kMenuItemEnabled];
+    [item setObject:busName forKey:kTrayMenuBusName];
+    [item setObject:menuPath forKey:kTrayMenuPath];
+    [item setObject:[NSNumber numberWithInt:itemId] forKey:kTrayMenuItemId];
 
     if (children.count > 0)
-        item[kMenuItemChildren] = [children copy];
+        [item setObject:[children copy] forKey:kMenuItemChildren];
 
     return @[[item copy]];
 }
@@ -556,7 +550,7 @@ static NSArray *ParseDBusMenuNode(DBusMessageIter *nodeIter,
 
 - (void)fetchMenuItemsWithConnection:(void *)dbusConn
                            dbusQueue:(dispatch_queue_t)dbusQueue
-                          completion:(void (^)(NSArray<NSDictionary *> *))completion
+                          completion:(void (^)(NSArray *))completion
 {
     NSString *menuPath = _menuPath;
     if (!menuPath.length || !dbusConn || !dbusQueue) {
@@ -573,7 +567,7 @@ static NSArray *ParseDBusMenuNode(DBusMessageIter *nodeIter,
      * with dbus_connection_read_write / dispatch.                           */
     dispatch_async(dbusQueue, ^{
         DBusConnection *conn = (DBusConnection *)dbusConn;
-        NSArray *result      = @[];
+        NSArray *result      = [NSArray array];
 
         /* ---- AboutToShow(0) ---- courtesy call; ignore errors */
         {

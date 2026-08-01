@@ -1,13 +1,19 @@
 #!/usr/bin/make -f
 
 export DH_VERBOSE = 1
+export GNUSTEP_MAKEFILES = /usr/share/GNUstep/Makefiles
 
 %:
 	dh $@
 
+override_dh_auto_clean:
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) distclean
+
 override_dh_auto_build:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE)
+	sed -i 's/void \*_Block_copy(void \*)/void \*_Block_copy(const void \*)/g' /usr/include/GNUstep/GNUstepBase/GSBlocks.h || true
+	sed -i 's/void _Block_release(void \*)/void _Block_release(const void \*)/g' /usr/include/GNUstep/GNUstepBase/GSBlocks.h || true
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) CC=clang CXX=clang++ OBJC=clang
 
 override_dh_auto_install:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia
-	install -D -m 0755 ambrosia-session $(CURDIR)/debian/ambrosia/usr/bin/ambrosia-session
+	rm -rf $(CURDIR)/debian/ambrosia/usr/local
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia GNUSTEP_INSTALLATION_DOMAIN=SYSTEM CC=clang CXX=clang++ OBJC=clang

@@ -1,4 +1,6 @@
 #import "AmbrosiaMenusBundle.h"
+#import <dispatch/dispatch.h>
+#import <objc/runtime.h>
 #import <AppKit/AppKit.h>
 #import <objc/runtime.h>
 
@@ -7,20 +9,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
 /* ---------------------------------------------------------------------- */
 #pragma mark - AmbrosiaMenusBundle
 
-@implementation AmbrosiaMenusBundle {
-    /* DO proxy to the MenuServer.  Nilled on failure so we retry next time. */
-    id<MenuServerProtocol> _serverProxy;
-
-    /*
-     * Maps the UUID identifiers we embed in menu descriptors back to the live
-     * NSMenuItem objects.  Rebuilt on every call to registerMenuWithServer.
-     */
-    NSMutableDictionary<NSString *, NSMenuItem *> *_itemTable;
-
-    /* Retry timer: fired when MenuServer wasn't available at first attempt. */
-    NSTimer    *_retryTimer;
-    NSUInteger  _retryCount;
-}
+@implementation AmbrosiaMenusBundle
 
 /* ---------------------------------------------------------------------- */
 #pragma mark - Singleton
@@ -219,12 +208,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
  */
 - (NSString *)_identifierForItem:(NSMenuItem *)item
 {
-    NSString *existing = objc_getAssociatedObject(item, kAmbrosiaItemIDKey);
-    if (existing) return existing;
-    NSString *newID = [[NSUUID UUID] UUIDString];
-    objc_setAssociatedObject(item, kAmbrosiaItemIDKey, newID,
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    return newID;
+    return [NSString stringWithFormat:@"%p", item];
 }
 
 /**
@@ -241,24 +225,23 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
 
         if (item.isSeparatorItem) {
-            desc[kMenuItemSeparator] = @YES;
+            [desc setObject:[NSNumber numberWithBool:YES] forKey:kMenuItemSeparator];
             [result addObject:[desc copy]];
             continue;
         }
 
         NSString *identifier = [self _identifierForItem:item];
-        desc[kMenuItemTitle]      = item.title ?: @"";
-        desc[kMenuItemIdentifier] = identifier;
-        desc[kMenuItemEnabled]    = @(item.isEnabled);
+        [desc setObject:(item.title ?: @"") forKey:kMenuItemTitle];
+        [desc setObject:identifier forKey:kMenuItemIdentifier];
+        [desc setObject:[NSNumber numberWithBool:item.isEnabled] forKey:kMenuItemEnabled];
 
         if (item.keyEquivalent.length)
-            desc[kMenuItemKeyEquiv] = item.keyEquivalent;
+            [desc setObject:item.keyEquivalent forKey:kMenuItemKeyEquiv];
 
         if (item.submenu)
-            desc[kMenuItemChildren] =
-                [self _descriptorsForMenu:item.submenu];
+            [desc setObject:[self _descriptorsForMenu:item.submenu] forKey:kMenuItemChildren];
 
-        _itemTable[identifier] = item;
+        [_itemTable setObject:item forKey:identifier];
 
         [result addObject:[desc copy]];
     }
@@ -285,7 +268,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
 
     NSString *appName = [[NSProcessInfo processInfo] processName];
     NSArray  *items   = [self _descriptorsForMenu:mainMenu];
-    NSNumber *pid     = @((int32_t)[[NSProcessInfo processInfo] processIdentifier]);
+    NSNumber *pid     = [NSNumber numberWithInt:(int32_t)[[NSProcessInfo processInfo] processIdentifier]];
 
     NSLog(@"AmbrosiaMenus: registering %lu top-level items for \"%@\" (pid %@).",
           (unsigned long)items.count, appName, pid);
@@ -326,7 +309,7 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
  */
 - (void)_compositorDidActivateApp:(NSNotification *)note
 {
-    NSNumber *pidNum = note.userInfo[kAmbrosiaActivatedPIDKey];
+    NSNumber *pidNum = [note.userInfo objectForKey:kAmbrosiaActivatedPIDKey];
     int32_t myPID = (int32_t)[[NSProcessInfo processInfo] processIdentifier];
     if (!pidNum || [pidNum intValue] != myPID) return;
     [self registerMenuWithServer];
@@ -342,16 +325,16 @@ static const void *kAmbrosiaItemIDKey = &kAmbrosiaItemIDKey;
  */
 - (void)_menuItemSelected:(NSNotification *)note
 {
-    NSNumber *pidNum = note.userInfo[kMenuItemSelectedPIDKey];
+    NSNumber *pidNum = [note.userInfo objectForKey:kMenuItemSelectedPIDKey];
     int32_t   myPID  = (int32_t)[[NSProcessInfo processInfo] processIdentifier];
     if (!pidNum || [pidNum intValue] != myPID) return;
 
-    NSString *identifier = note.userInfo[kMenuItemSelectedIdentifierKey];
+    NSString *identifier = [note.userInfo objectForKey:kMenuItemSelectedIdentifierKey];
     if (!identifier.length) return;
 
     /* Dispatch on the main thread; the notification may arrive on any thread. */
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSMenuItem *item = self->_itemTable[identifier];
+        NSMenuItem *item = [self->_itemTable objectForKey:identifier];
         if (!item) {
             NSLog(@"AmbrosiaMenus: received unknown identifier: %@", identifier);
             return;

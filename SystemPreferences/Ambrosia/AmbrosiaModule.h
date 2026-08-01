@@ -15,55 +15,101 @@
  */
 @interface AmbrosiaModule : NSPreferencePane
 {
-  BOOL loaded;
+    BOOL loaded;
+    NSString            *_compPrefsPath;
+    NSString            *_dockPrefsPath;
+    NSString            *_sessionPrefsPath;
+    NSString            *_desktopPrefsPath;
+    NSMutableDictionary *_compPrefs;
+    NSMutableDictionary *_dockPrefs;
+    NSMutableDictionary *_sessionPrefs;
+    NSMutableDictionary *_desktopPrefs;
+    NSMutableArray      *_dockItems;
+    NSMutableArray      *_sessionItems;
+    NSMutableArray      *_startupCommands;
+    NSSlider       *_transparencySlider;
+    NSTextField    *_transparencyLabel;
+    NSButton       *_enableDecorationsCheck;
+    NSButton       *_enableBlurCheck;
+    NSButton       *_x11DecorationsCheck;
+    NSSlider       *_iconSizeSlider;
+    NSTextField    *_iconSizeLabel;
+    NSSlider       *_zoomFactorSlider;
+    NSTextField    *_zoomFactorLabel;
+    NSSegmentedControl *_positionControl;
+    NSButton       *_autoHideCheck;
+    NSSlider       *_autoHideDelaySlider;
+    NSTextField    *_autoHideDelayLabel;
+    NSButton       *_showRunningIndicatorCheck;
+    NSTableView    *_dockItemsTable;
+    NSButton       *_addItemButton;
+    NSButton       *_removeItemButton;
+    NSTableView    *_sessionItemsTable;
+    NSButton       *_addSessionItemButton;
+    NSButton       *_removeSessionItemButton;
+    NSTableView    *_startupCommandsTable;
+    NSButton       *_addStartupCommandButton;
+    NSButton       *_removeStartupCommandButton;
+    NSTextField    *_bgImagePathField;
+    NSButton       *_bgImageChooseButton;
+    NSButton       *_bgImageRadio;
+    NSButton       *_rotatingRadio;
+    NSButton       *_bg3DRadio;
+    NSTextField    *_bgFolderPathField;
+    NSButton       *_bgFolderChooseButton;
+    NSSlider       *_intervalSlider;
+    NSTextField    *_intervalLabel;
+    NSTextField    *_sceneFilePathField;
+    NSButton       *_sceneFileChooseButton;
+    NSTabView      *_tabView;
 }
 /* Compositor settings outlets */
-@property (nonatomic, strong) IBOutlet NSSlider       *transparencySlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *transparencyLabel;
-@property (nonatomic, strong) IBOutlet NSButton       *enableDecorationsCheck;
-@property (nonatomic, strong) IBOutlet NSButton       *enableBlurCheck;
-@property (nonatomic, strong) IBOutlet NSButton       *x11DecorationsCheck;
+@property (nonatomic, retain) IBOutlet NSSlider       *transparencySlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *transparencyLabel;
+@property (nonatomic, retain) IBOutlet NSButton       *enableDecorationsCheck;
+@property (nonatomic, retain) IBOutlet NSButton       *enableBlurCheck;
+@property (nonatomic, retain) IBOutlet NSButton       *x11DecorationsCheck;
 
 /* Dock settings outlets */
-@property (nonatomic, strong) IBOutlet NSSlider       *iconSizeSlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *iconSizeLabel;
-@property (nonatomic, strong) IBOutlet NSSlider       *zoomFactorSlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *zoomFactorLabel;
-@property (nonatomic, strong) IBOutlet NSSegmentedControl *positionControl;
-@property (nonatomic, strong) IBOutlet NSButton       *autoHideCheck;
-@property (nonatomic, strong) IBOutlet NSSlider       *autoHideDelaySlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *autoHideDelayLabel;
-@property (nonatomic, strong) IBOutlet NSButton       *showRunningIndicatorCheck;
-@property (nonatomic, strong) IBOutlet NSTableView    *dockItemsTable;
-@property (nonatomic, strong) IBOutlet NSButton       *addItemButton;
-@property (nonatomic, strong) IBOutlet NSButton       *removeItemButton;
+@property (nonatomic, retain) IBOutlet NSSlider       *iconSizeSlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *iconSizeLabel;
+@property (nonatomic, retain) IBOutlet NSSlider       *zoomFactorSlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *zoomFactorLabel;
+@property (nonatomic, retain) IBOutlet NSSegmentedControl *positionControl;
+@property (nonatomic, retain) IBOutlet NSButton       *autoHideCheck;
+@property (nonatomic, retain) IBOutlet NSSlider       *autoHideDelaySlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *autoHideDelayLabel;
+@property (nonatomic, retain) IBOutlet NSButton       *showRunningIndicatorCheck;
+@property (nonatomic, retain) IBOutlet NSTableView    *dockItemsTable;
+@property (nonatomic, retain) IBOutlet NSButton       *addItemButton;
+@property (nonatomic, retain) IBOutlet NSButton       *removeItemButton;
 
 /* Session settings outlets */
-@property (nonatomic, strong) IBOutlet NSTableView    *sessionItemsTable;
-@property (nonatomic, strong) IBOutlet NSButton       *addSessionItemButton;
-@property (nonatomic, strong) IBOutlet NSButton       *removeSessionItemButton;
-@property (nonatomic, strong) IBOutlet NSTableView    *startupCommandsTable;
-@property (nonatomic, strong) IBOutlet NSButton       *addStartupCommandButton;
-@property (nonatomic, strong) IBOutlet NSButton       *removeStartupCommandButton;
+@property (nonatomic, retain) IBOutlet NSTableView    *sessionItemsTable;
+@property (nonatomic, retain) IBOutlet NSButton       *addSessionItemButton;
+@property (nonatomic, retain) IBOutlet NSButton       *removeSessionItemButton;
+@property (nonatomic, retain) IBOutlet NSTableView    *startupCommandsTable;
+@property (nonatomic, retain) IBOutlet NSButton       *addStartupCommandButton;
+@property (nonatomic, retain) IBOutlet NSButton       *removeStartupCommandButton;
 
 /* Desktop settings outlets */
-@property (nonatomic, strong) IBOutlet NSTextField    *bgImagePathField;
-@property (nonatomic, strong) IBOutlet NSButton       *bgImageChooseButton;
+@property (nonatomic, retain) IBOutlet NSTextField    *bgImagePathField;
+@property (nonatomic, retain) IBOutlet NSButton       *bgImageChooseButton;
 /* Background mode radio buttons (replaces the old rotatingCheck checkbox) */
-@property (nonatomic, strong) IBOutlet NSButton       *bgImageRadio;
-@property (nonatomic, strong) IBOutlet NSButton       *rotatingRadio;
-@property (nonatomic, strong) IBOutlet NSButton       *bg3DRadio;
+@property (nonatomic, retain) IBOutlet NSButton       *bgImageRadio;
+@property (nonatomic, retain) IBOutlet NSButton       *rotatingRadio;
+@property (nonatomic, retain) IBOutlet NSButton       *bg3DRadio;
 /* Rotating-mode controls */
-@property (nonatomic, strong) IBOutlet NSTextField    *bgFolderPathField;
-@property (nonatomic, strong) IBOutlet NSButton       *bgFolderChooseButton;
-@property (nonatomic, strong) IBOutlet NSSlider       *intervalSlider;
-@property (nonatomic, strong) IBOutlet NSTextField    *intervalLabel;
+@property (nonatomic, retain) IBOutlet NSTextField    *bgFolderPathField;
+@property (nonatomic, retain) IBOutlet NSButton       *bgFolderChooseButton;
+@property (nonatomic, retain) IBOutlet NSSlider       *intervalSlider;
+@property (nonatomic, retain) IBOutlet NSTextField    *intervalLabel;
 /* 3D-mode controls */
-@property (nonatomic, strong) IBOutlet NSTextField    *sceneFilePathField;
-@property (nonatomic, strong) IBOutlet NSButton       *sceneFileChooseButton;
+@property (nonatomic, retain) IBOutlet NSTextField    *sceneFilePathField;
+@property (nonatomic, retain) IBOutlet NSButton       *sceneFileChooseButton;
 
 /* Tab view for switching sections */
-@property (nonatomic, strong) IBOutlet NSTabView      *tabView;
+@property (nonatomic, retain) IBOutlet NSTabView      *tabView;
 
 /* IBActions */
 - (IBAction)transparencyChanged:(id)sender;

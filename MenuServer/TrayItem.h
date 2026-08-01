@@ -1,3 +1,4 @@
+#import <dispatch/dispatch.h>
 /**
  * TrayItem.h
  *
@@ -17,6 +18,15 @@
 @protocol TrayItemDelegate;
 
 @interface TrayItem : NSObject
+{
+    NSString *_busName;
+    NSString *_objectPath;
+    NSImage  *_icon;
+    NSString *_title;
+    NSString *_menuPath;
+    id<TrayItemDelegate> _delegate;
+}
+
 
 /** D-Bus sender name (bus name, e.g. ":1.42"). */
 @property (nonatomic, readonly, copy) NSString *busName;
@@ -38,7 +48,7 @@
 @property (nonatomic, readonly, copy) NSString *menuPath;
 
 /** Delegate notified when properties are updated. */
-@property (nonatomic, weak) id<TrayItemDelegate> delegate;
+@property (nonatomic, assign) id<TrayItemDelegate> delegate;
 
 /**
  * Designated initialiser.
@@ -87,7 +97,7 @@
  */
 - (void)fetchMenuItemsWithConnection:(void *)connection
                            dbusQueue:(dispatch_queue_t)dbusQueue
-                          completion:(void (^)(NSArray<NSDictionary *> *items))completion;
+                          completion:(void (^)(NSArray *items))completion;
 
 /**
  * Send Event(id, "clicked", 0, timestamp) to activate a dbusmenu item.

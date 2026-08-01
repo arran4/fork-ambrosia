@@ -29,7 +29,7 @@ static const CGFloat kTrayIconPad  =  4.0;   /* left/right padding per icon */
 static const CGFloat kTraySepW     =  6.0;   /* gap between tray and status items */
 
 /* ---- Hit-region tags ---- */
-typedef NS_ENUM(NSInteger, MenuBarRegion) {
+typedef enum {
     MenuBarRegionNone        = -1,
     MenuBarRegionAmbrosia    =  0,
     MenuBarRegionSession     =  1,
@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, MenuBarRegion) {
     MenuBarRegionTrayItem    =  200,  /* tray icons 200…249; index = tag − 200 */
     MenuBarRegionStatusItem  =  50,   /* plugins 50…99;  index = tag − 50  */
     MenuBarRegionMenuItem    =  100,  /* items >= 100;   index = tag − 100  */
-};
+} MenuBarRegion;
 
 /* ---- NSDictionary keys for system-menu item descriptors ---- */
 static NSString * const kSysItemTitle    = @"sysTitle";
@@ -151,37 +151,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
 /* ---------------------------------------------------------------------- */
 
-@implementation MenuBarView {
-    /* ---- Bar state ---- */
-    NSArray   *_activeMenuItems;   /* NSArray<NSDictionary*> from DO app */
-    NSString  *_clockString;
-    NSTimer   *_clockTimer;
-
-    /* ---- Pre-computed bar hit rects (view coords, isFlipped=YES) ---- */
-    NSRect              _ambrosiaRect;
-    NSRect              _appNameRect;
-    NSMutableArray     *_menuRects;        /* NSValue(NSRect) per clickable top-level item */
-    NSMutableArray     *_menuItemIndices;  /* NSNumber: index into _activeMenuItems */
-    NSMutableArray     *_pluginRects;      /* NSValue(NSRect) per status plugin button */
-    NSMutableArray     *_trayRects;        /* NSValue(NSRect) per tray icon */
-    NSRect              _clockRect;
-    NSRect              _sessionRect;      /* kept for compat; always NSZeroRect */
-    NSInteger           _pressedRegion;    /* MenuBarRegion; -1 = none */
-
-    /* ---- Inline dropdown state ---- */
-    NSInteger           _openTag;          /* which header is open (MenuBarRegion); -1 = none */
-    NSArray            *_openDescriptors;  /* items for open dropdown; NSDictionary array */
-    /* When the open dropdown belongs to a plugin, store the plugin index. */
-    NSInteger           _openPluginIdx;    /* -1 if not a plugin dropdown */
-    NSMutableArray     *_dropdownRects;    /* NSValue(NSRect) per dropdown row (view coords) */
-    CGFloat             _dropdownX;        /* left edge of open dropdown */
-    CGFloat             _dropdownW;        /* width of open dropdown */
-    NSInteger           _hoveredIdx;       /* hovered item index (-1 = none) */
-
-    /* ---- Vertical slider drag state ---- */
-    NSInteger           _draggingSliderRowIdx;    /* row index in _dropdownRects; -1 = none */
-    NSInteger           _draggingSliderPluginIdx; /* plugin index owning the slider; -1 = none */
-}
+@implementation MenuBarView
+@synthesize controller = _controller;
 
 @synthesize statusPlugins = _statusPlugins;
 @synthesize trayItems     = _trayItems;
@@ -232,6 +203,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_clockTimer invalidate];
     _clockTimer = nil;
+    [super dealloc];
 }
 
 /* ---------------------------------------------------------------------- */
@@ -247,7 +219,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 /* ---------------------------------------------------------------------- */
 #pragma mark - Tray items
 
-- (void)setTrayItems:(NSArray<TrayItem *> *)trayItems
+- (void)setTrayItems:(NSArray *)trayItems
 {
     _trayItems = [trayItems copy];
     [self setNeedsDisplay:YES];
@@ -344,9 +316,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     rightX -= clockW + kItemGap;
 
     /* ---- RIGHT SIDE: status item plugins (right-to-left) ---- */
-    NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+    NSArray *plugins = _statusPlugins;
     for (NSInteger pi = (NSInteger)plugins.count - 1; pi >= 0; pi--) {
-        id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pi];
+        id<AmbrosiaStatusItemPlugin> plugin = (id<AmbrosiaStatusItemPlugin>)[plugins objectAtIndex:(NSUInteger)pi];
         NSString *label = plugin.barLabel;
         if (!label.length) continue;
 
@@ -357,7 +329,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         /* Pad _pluginRects so index pi maps to the right slot. */
         while ((NSInteger)_pluginRects.count <= pi)
             [_pluginRects addObject:[NSValue valueWithRect:NSZeroRect]];
-        _pluginRects[(NSUInteger)pi] = [NSValue valueWithRect:pRect];
+        [_pluginRects replaceObjectAtIndex:(NSUInteger)pi withObject:[NSValue valueWithRect:pRect]];
 
         NSInteger tag = MenuBarRegionStatusItem + pi;
         [self _drawBarButton:pRect
@@ -369,7 +341,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     }
 
     /* ---- RIGHT SIDE: tray icons (right-to-left, left of status plugins) ---- */
-    NSArray<TrayItem *> *trayItems = _trayItems;
+    NSArray *trayItems = _trayItems;
     if (trayItems.count > 0) {
         /* Vertical icon origin so a kTrayIconSize icon is centred in the bar */
         CGFloat iconY = (kBarHeight - kTrayIconSize) * 0.5;
@@ -381,13 +353,13 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
         /* Draw right-to-left */
         for (NSInteger ti = (NSInteger)trayItems.count - 1; ti >= 0; ti--) {
-            TrayItem *item = trayItems[(NSUInteger)ti];
+            TrayItem *item = (TrayItem *)[trayItems objectAtIndex:(NSUInteger)ti];
             NSRect slotRect = NSMakeRect(rightX - iconSlotW, 0, iconSlotW, kBarHeight);
 
             /* Pad _trayRects so index ti maps to the right slot */
             while ((NSInteger)_trayRects.count <= ti)
                 [_trayRects addObject:[NSValue valueWithRect:NSZeroRect]];
-            _trayRects[(NSUInteger)ti] = [NSValue valueWithRect:slotRect];
+            [_trayRects replaceObjectAtIndex:(NSUInteger)ti withObject:[NSValue valueWithRect:slotRect]];
 
             NSInteger tag = MenuBarRegionTrayItem + ti;
             BOOL isPressed = (_pressedRegion == tag);
@@ -436,10 +408,10 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     NSUInteger activeItemIndex = 0;
     BOOL isFirstMenuItem = YES;
     for (NSDictionary *item in _activeMenuItems) {
-        if ([item[kMenuItemSeparator] boolValue]) { activeItemIndex++; continue; }
+        if ([[item objectForKey:kMenuItemSeparator] boolValue]) { activeItemIndex++; continue; }
 
         NSDictionary *attrs = isFirstMenuItem ? BoldAttrs() : NormalAttrs();
-        NSString *title   = item[kMenuItemTitle] ?: @"";
+        NSString *title   = [item objectForKey:kMenuItemTitle] ?: @"";
         NSSize    titleSz = [title sizeWithAttributes:attrs];
         CGFloat   itemW   = titleSz.width + kItemPad * 2 + 8;
 
@@ -521,8 +493,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Calculate dropdown width */
     CGFloat maxTitleW = kDropMinW - kDropPadX * 2;
     for (NSDictionary *item in _openDescriptors) {
-        if ([item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue]) continue;
-        NSString *title = item[kSysItemTitle] ?: item[kMenuItemTitle] ?: @"";
+        if ([[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue]) continue;
+        NSString *title = [item objectForKey:kSysItemTitle] ?: [item objectForKey:kMenuItemTitle] ?: @"";
         NSSize sz = [title sizeWithAttributes:NormalAttrs()];
         if (sz.width > maxTitleW) maxTitleW = sz.width;
     }
@@ -545,8 +517,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Items */
     NSUInteger idx = 0;
     for (NSDictionary *item in _openDescriptors) {
-        BOOL isSep    = [item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue];
-        BOOL isSlider = !isSep && [item[kMenuItemSlider] boolValue];
+        BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
+        BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
 
         if (isSep) {
             CGFloat rowH = kDropSepH;
@@ -569,7 +541,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
             NSRect rowRect = NSMakeRect(_dropdownX, y, _dropdownW, rowH);
             [_dropdownRects addObject:[NSValue valueWithRect:rowRect]];
 
-            CGFloat value    = [item[kMenuItemSliderValue] doubleValue];
+            CGFloat value    = [[item objectForKey:kMenuItemSliderValue] doubleValue];
             CGFloat trackW   = 8.0;
             CGFloat padY     = 18.0;  /* space reserved for percentage label at top */
             CGFloat trackX   = _dropdownX + (_dropdownW - trackW) * 0.5;
@@ -579,7 +551,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
             /* Track background */
             NSRect trackBg = NSMakeRect(trackX, trackTop, trackW, trackH);
-            [[NSColor colorWithWhite:0.75 alpha:1.0] set];
+            [[NSColor colorWithCalibratedWhite:0.75 alpha:1.0] set];
             [[NSBezierPath bezierPathWithRoundedRect:trackBg xRadius:4 yRadius:4] fill];
 
             /* Filled portion (bottom up) */
@@ -609,9 +581,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
             y += rowH;
 
         } else {
-            BOOL enabled = item[kMenuItemEnabled]
-                           ? [item[kMenuItemEnabled] boolValue] : YES;
-            BOOL grayed  = [item[kMenuItemGrayed] boolValue];
+            BOOL enabled = [item objectForKey:kMenuItemEnabled]
+                           ? [[item objectForKey:kMenuItemEnabled] boolValue] : YES;
+            BOOL grayed  = [[item objectForKey:kMenuItemGrayed] boolValue];
             BOOL hovered = (_hoveredIdx == (NSInteger)idx);
             CGFloat rowH = kDropItemH;
             NSRect rowRect = NSMakeRect(_dropdownX, y, _dropdownW, rowH);
@@ -622,7 +594,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
                 NSRectFill(rowRect);
             }
 
-            NSString *title = item[kSysItemTitle] ?: item[kMenuItemTitle] ?: @"";
+            NSString *title = [item objectForKey:kSysItemTitle] ?: [item objectForKey:kMenuItemTitle] ?: @"";
             NSDictionary *attrs;
             if (!enabled)
                 attrs = DisabledAttrs();
@@ -635,7 +607,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
             [title drawAtPoint:NSMakePoint(_dropdownX + kDropPadX, textY)
                 withAttributes:attrs];
 
-            NSString *keyEquiv = item[kMenuItemKeyEquiv];
+            NSString *keyEquiv = [item objectForKey:kMenuItemKeyEquiv];
             if (keyEquiv.length) {
                 NSString *hint = [@"\u2318" stringByAppendingString:keyEquiv.uppercaseString];
                 NSDictionary *hintAttrs = DisabledAttrs();
@@ -657,8 +629,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     CGFloat h = 0;
     for (NSDictionary *item in _openDescriptors) {
-        BOOL isSep    = [item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue];
-        BOOL isSlider = !isSep && [item[kMenuItemSlider] boolValue];
+        BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
+        BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
         if (isSep)         h += kDropSepH;
         else if (isSlider) h += kDropSliderH;
         else               h += kDropItemH;
@@ -675,7 +647,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     if (pt.y < 0 || pt.y > kBarHeight) return;
 
     for (NSUInteger i = 0; i < _trayRects.count; i++) {
-        NSRect r = [_trayRects[i] rectValue];
+        NSRect r = [[_trayRects objectAtIndex:i] rectValue];
         if (r.size.width == 0) continue;
         if (NSPointInRect(pt, r)) {
             [self _openTrayMenuForItemIndex:(NSInteger)i clickPoint:pt];
@@ -691,17 +663,17 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
  */
 - (void)_openTrayMenuForItemIndex:(NSInteger)ti clickPoint:(NSPoint)pt
 {
-    NSArray<TrayItem *> *items = _trayItems;
+    NSArray *items = _trayItems;
     if (ti < 0 || ti >= (NSInteger)items.count) return;
-    TrayItem *trayItem = items[(NSUInteger)ti];
+    TrayItem *trayItem = [items objectAtIndex:(NSUInteger)ti];
     void             *conn      = _controller.trayManager.dbusConnection;
     dispatch_queue_t  dbusQueue = _controller.trayManager.dbusQueue;
 
-    __weak typeof(self) weakSelf = self;
+    MenuBarView *weakSelf = self;
     [trayItem fetchMenuItemsWithConnection:conn
                                  dbusQueue:dbusQueue
-                                completion:^(NSArray<NSDictionary *> *menuItems) {
-        __strong typeof(self) strongSelf = weakSelf;
+                                completion:^(NSArray *menuItems) {
+        MenuBarView *strongSelf = weakSelf;
         if (!strongSelf) return;
 
         if (menuItems.count == 0) {
@@ -722,7 +694,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         /* Align dropdown to the left edge of the tray icon slot */
         NSRect slot = NSZeroRect;
         if (ti < (NSInteger)strongSelf->_trayRects.count)
-            slot = [strongSelf->_trayRects[(NSUInteger)ti] rectValue];
+            slot = [[strongSelf->_trayRects objectAtIndex:(NSUInteger)ti] rectValue];
 
         strongSelf->_openTag         = MenuBarRegionTrayItem + ti;
         strongSelf->_openDescriptors = menuItems;
@@ -738,7 +710,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 }
 
 /** Find the TrayItem whose bus name matches, or nil. */
-- (nullable TrayItem *)_trayItemForBusName:(NSString *)busName
+- (TrayItem *)_trayItemForBusName:(NSString *)busName
 {
     for (TrayItem *it in _trayItems) {
         if ([it.busName isEqualToString:busName]) return it;
@@ -754,11 +726,11 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     if (_openTag != MenuBarRegionNone) {
         NSInteger hitIdx = [self _dropdownIndexForPoint:pt];
         if (hitIdx >= 0) {
-            NSDictionary *item = _openDescriptors[(NSUInteger)hitIdx];
-            BOOL isSep    = [item[kSysItemSep] boolValue] || [item[kMenuItemSeparator] boolValue];
-            BOOL isSlider = !isSep && [item[kMenuItemSlider] boolValue];
-            BOOL enabled  = item[kMenuItemEnabled]
-                            ? [item[kMenuItemEnabled] boolValue] : YES;
+            NSDictionary *item = [_openDescriptors objectAtIndex:(NSUInteger)hitIdx];
+            BOOL isSep    = [[item objectForKey:kSysItemSep] boolValue] || [[item objectForKey:kMenuItemSeparator] boolValue];
+            BOOL isSlider = !isSep && [[item objectForKey:kMenuItemSlider] boolValue];
+            BOOL enabled  = [item objectForKey:kMenuItemEnabled]
+                            ? [[item objectForKey:kMenuItemEnabled] boolValue] : YES;
 
             if (isSlider) {
                 /* Start tracking a slider drag — do NOT close the dropdown. */
@@ -857,7 +829,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
         _draggingSliderRowIdx >= (NSInteger)_dropdownRects.count) return;
 
     NSRect sliderRowRect =
-        [_dropdownRects[(NSUInteger)_draggingSliderRowIdx] rectValue];
+        [[_dropdownRects objectAtIndex:(NSUInteger)_draggingSliderRowIdx] rectValue];
 
     CGFloat padY     = 18.0;   /* must match kDropSliderH layout in _drawDropdown */
     CGFloat trackTop = sliderRowRect.origin.y + padY;
@@ -871,16 +843,16 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Rebuild _openDescriptors with the updated slider value. */
     NSMutableArray *mutable = [_openDescriptors mutableCopy];
     NSMutableDictionary *sliderItem =
-        [mutable[(NSUInteger)_draggingSliderRowIdx] mutableCopy];
-    sliderItem[kMenuItemSliderValue] = @(newValue);
-    mutable[(NSUInteger)_draggingSliderRowIdx] = sliderItem;
+        [[mutable objectAtIndex:(NSUInteger)_draggingSliderRowIdx] mutableCopy];
+    [sliderItem setObject:[NSNumber numberWithDouble:newValue] forKey:kMenuItemSliderValue];
+    [mutable replaceObjectAtIndex:(NSUInteger)_draggingSliderRowIdx withObject:sliderItem];
     _openDescriptors = [mutable copy];
 
     /* Notify the owning plugin so it applies the volume change. */
-    NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+    NSArray *plugins = _statusPlugins;
     NSInteger pi = _draggingSliderPluginIdx;
     if (pi >= 0 && pi < (NSInteger)plugins.count)
-        [plugins[(NSUInteger)pi] activateItem:sliderItem];
+        [[plugins objectAtIndex:(NSUInteger)pi] activateItem:sliderItem];
 
     [self setNeedsDisplay:YES];
 }
@@ -897,12 +869,12 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     if (NSPointInRect(pt, _sessionRect))  return MenuBarRegionSession;
     if (NSPointInRect(pt, _clockRect))    return MenuBarRegionClock;
     for (NSUInteger i = 0; i < _trayRects.count; i++) {
-        NSRect r = [_trayRects[i] rectValue];
+        NSRect r = [[_trayRects objectAtIndex:i] rectValue];
         if (r.size.width == 0) continue;
         if (NSPointInRect(pt, r)) return MenuBarRegionTrayItem + (NSInteger)i;
     }
     for (NSUInteger i = 0; i < _pluginRects.count; i++) {
-        NSRect r = [_pluginRects[i] rectValue];
+        NSRect r = [[_pluginRects objectAtIndex:i] rectValue];
         if (r.size.width == 0 && r.size.height == 0) continue;
         if (NSPointInRect(pt, r)) return MenuBarRegionStatusItem + (NSInteger)i;
     }
@@ -955,10 +927,10 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     /* Tray items forward clicks directly to the SNI item; no dropdown. */
     if (region >= MenuBarRegionTrayItem) {
         NSInteger ti = region - MenuBarRegionTrayItem;
-        NSArray<TrayItem *> *items = _trayItems;
+        NSArray *items = _trayItems;
         if (ti < (NSInteger)items.count) {
-            TrayItem *item = items[(NSUInteger)ti];
-            NSRect   slot  = [_trayRects[(NSUInteger)ti] rectValue];
+            TrayItem *item = [items objectAtIndex:(NSUInteger)ti];
+            NSRect   slot  = [[_trayRects objectAtIndex:(NSUInteger)ti] rectValue];
             NSPoint  barPt = NSMakePoint(NSMidX(slot), NSMidY(slot));
             NSPoint  scPt  = [self.window convertBaseToScreen:
                               [self convertPoint:barPt toView:nil]];
@@ -985,21 +957,21 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     } else if (region >= MenuBarRegionStatusItem &&
                region < MenuBarRegionMenuItem) {
         NSInteger pi = region - MenuBarRegionStatusItem;
-        NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+        NSArray *plugins = _statusPlugins;
         if (pi < (NSInteger)plugins.count) {
-            id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pi];
+            id<AmbrosiaStatusItemPlugin> plugin = (id<AmbrosiaStatusItemPlugin>)[plugins objectAtIndex:(NSUInteger)pi];
             descriptors = plugin.dropdownItems;
             if (pi < (NSInteger)_pluginRects.count)
-                openX = [_pluginRects[(NSUInteger)pi] rectValue].origin.x;
+                openX = [[_pluginRects objectAtIndex:(NSUInteger)pi] rectValue].origin.x;
             _openPluginIdx = pi;
         }
     } else if (region >= MenuBarRegionMenuItem) {
         NSInteger idx = region - MenuBarRegionMenuItem;
         if (idx < (NSInteger)_menuItemIndices.count) {
-            NSUInteger activeIdx = [_menuItemIndices[(NSUInteger)idx] unsignedIntegerValue];
+            NSUInteger activeIdx = [[_menuItemIndices objectAtIndex:(NSUInteger)idx] unsignedIntegerValue];
             if (activeIdx < _activeMenuItems.count) {
-                NSDictionary *topItem = _activeMenuItems[activeIdx];
-                descriptors = topItem[kMenuItemChildren];
+                NSDictionary *topItem = [_activeMenuItems objectAtIndex:activeIdx];
+                descriptors = [topItem objectForKey:kMenuItemChildren];
                 NSRect r = [[_menuRects objectAtIndex:(NSUInteger)idx] rectValue];
                 openX = r.origin.x;
             }
@@ -1041,9 +1013,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     /* Plugin items: route to the plugin that owned this dropdown. */
     if (pluginIdx >= 0) {
-        NSArray<id<AmbrosiaStatusItemPlugin>> *plugins = _statusPlugins;
+        NSArray *plugins = _statusPlugins;
         if (pluginIdx < (NSInteger)plugins.count) {
-            id<AmbrosiaStatusItemPlugin> plugin = plugins[(NSUInteger)pluginIdx];
+            id<AmbrosiaStatusItemPlugin> plugin = [plugins objectAtIndex:(NSUInteger)pluginIdx];
             [plugin activateItem:item];
         }
         return;
@@ -1051,9 +1023,9 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 
     /* dbusmenu tray items carry a bus name and integer item id.
      * Trigger via com.canonical.dbusmenu Event() instead of a notification. */
-    NSString *trayBusName = item[@"_trayBusName"];
+    NSString *trayBusName = [item objectForKey:@"_trayBusName"];
     if (trayBusName.length) {
-        NSNumber *menuItemId = item[@"_dbusMenuId"];
+        NSNumber *menuItemId = [item objectForKey:@"_dbusMenuId"];
         if (menuItemId) {
             TrayItem *trayItem = [self _trayItemForBusName:trayBusName];
             if (trayItem) {
@@ -1066,7 +1038,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     }
 
     /* System-menu items carry a selector name */
-    NSString *selName = item[kSysItemSel];
+    NSString *selName = [item objectForKey:kSysItemSel];
     if (selName.length) {
         SEL sel = NSSelectorFromString(selName);
         if ([self respondsToSelector:sel]) {
@@ -1077,7 +1049,7 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     }
 
     /* App-menu items carry a kMenuItemIdentifier */
-    NSString *identifier = item[kMenuItemIdentifier];
+    NSString *identifier = [item objectForKey:kMenuItemIdentifier];
     if (identifier.length) {
         [_controller performMenuItemWithIdentifier:identifier];
     }
@@ -1090,11 +1062,11 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
 {
     return @[
         @{ kSysItemTitle: @"About Ambrosia\u2026",       kSysItemSel: @"_doAbout" },
-        @{ kSysItemSep: @YES },
+        [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kSysItemSep],
         @{ kSysItemTitle: @"System Preferences\u2026",   kSysItemSel: @"_doPreferences" },
         @{ kSysItemTitle: @"Open Terminal",              kSysItemSel: @"_doTerminal" },
         @{ kSysItemTitle: @"Files",                      kSysItemSel: @"_doGFinder" },
-        @{ kSysItemSep: @YES },
+        [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kSysItemSep],
         @{ kSysItemTitle: @"Log Out\u2026",              kSysItemSel: @"_doLogout" },
         @{ kSysItemTitle: @"Shut Down\u2026",            kSysItemSel: @"_doShutdown" },
         @{ kSysItemTitle: @"Restart\u2026",              kSysItemSel: @"_doReboot" },
@@ -1115,7 +1087,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
     NSDate *now = [NSDate date];
 
     NSCalendar *cal = [NSCalendar currentCalendar];
-    NSInteger day = [cal component:NSCalendarUnitDay fromDate:now];
+    NSDateComponents *comp = [cal components:NSDayCalendarUnit fromDate:now];
+    NSInteger day = [comp day];
 
     NSDateFormatter *monthYearFmt = [[NSDateFormatter alloc] init];
     [monthYearFmt setDateFormat:@"MMMM yyyy"];
@@ -1129,8 +1102,8 @@ static NSRect CentreInRect(NSString *s, NSDictionary *a, NSRect r)
                         (long)day, OrdinalSuffixForDay(day), monthYear, time];
 
     return @[
-        @{ kSysItemTitle: title, kMenuItemEnabled: @NO },
-        @{ kSysItemSep: @YES },
+        [NSDictionary dictionaryWithObjectsAndKeys:title, kSysItemTitle, [NSNumber numberWithBool:NO], kMenuItemEnabled, nil],
+        [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:kSysItemSep],
         @{ kSysItemTitle: @"Launch Calendar", kSysItemSel: @"_doLaunchCalendar" },
     ];
 }

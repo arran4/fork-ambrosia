@@ -1,0 +1,116 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*', 'v*.*.*']
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, closed]
+    branches: [main, master]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        default: build
+        options: [build, release-major, release-minor, release-patch]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Debian Package
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build Debian Package in Docker
+        run: |
+          docker run --rm --env GITHUB_REF="${{ github.ref }}" --platform linux/arm/v7 -v ${{ github.workspace }}:/workspace -w /workspace arm32v7/debian:jessie /bin/bash -ec '
+            echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" \
+              > /etc/apt/sources.list
+            echo "deb [trusted=yes] http://archive.debian.org/debian-security jessie/updates main" \
+              >> /etc/apt/sources.list
+
+            cat > /etc/apt/apt.conf.d/99archive <<INNEREOF
+          Acquire::Check-Valid-Until "false";
+          Acquire::AllowInsecureRepositories "true";
+          Acquire::AllowDowngradeToInsecureRepositories "true";
+          APT::Get::AllowUnauthenticated "true";
+          INNEREOF
+
+            mkdir -p /var/cache/apt/archives/partial
+            apt-get clean
+            rm -rf /var/lib/apt/lists/*
+
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get -o Acquire::Check-Valid-Until=false update
+
+            apt-get \
+              -o APT::Get::AllowUnauthenticated=true \
+              -o Dpkg::Options::=--force-confold \
+              -y dist-upgrade
+
+            dpkg-query -W perl-base gcc-4.9-base || true
+            apt-cache policy perl-base perl gcc-4.9-base gcc-4.9
+
+            apt-get \
+              -o APT::Get::AllowUnauthenticated=true \
+              -o Debug::pkgProblemResolver=yes \
+              install -y --no-install-recommends --force-yes \
+                build-essential \
+                devscripts \
+                equivs \
+                ca-certificates
+
+            mk-build-deps -i -r \
+              -t "apt-get --no-install-recommends -y \
+                  -o APT::Get::AllowUnauthenticated=true"
+
+
+            if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+              VERSION=${GITHUB_REF#refs/tags/v}
+              dch -v "${VERSION}-1" "Release ${VERSION}"
+            fi
+
+            export CC=clang
+
+            export CXX=clang++
+            export OBJC=clang
+
+            dpkg-buildpackage -us -uc -b
+            mv ../*.deb /workspace/
+          '
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package
+          path: '*.deb'
+          retention-days: 1
+
+  publish-draft:
+    name: Publish draft GitHub release
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-package
+          path: dist-release
+
+      - name: Publish draft GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          files: dist-release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

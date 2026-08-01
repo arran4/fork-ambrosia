@@ -13,6 +13,13 @@
 #import "AmbrosiaStatusItemPlugin.h"
 
 @interface BluetoothStatusItem : NSObject <AmbrosiaStatusItemPlugin>
+{
+    NSTimer  *_timer;
+    BOOL      _btEnabled;
+    NSArray  *_devices;
+    id<AmbrosiaStatusItemPluginDelegate> _delegate;
+}
+
 
 /** Shared initialiser — sets up the refresh timer. */
 - (instancetype)init;

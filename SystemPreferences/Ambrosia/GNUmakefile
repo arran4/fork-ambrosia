@@ -1,4 +1,5 @@
 include $(GNUSTEP_MAKEFILES)/common.make
+ADDITIONAL_OBJCFLAGS += -I$(CURDIR)/../..
 
 BUNDLE_NAME     = AmbrosiaModule
 BUNDLE_EXTENSION = .prefPane
@@ -6,7 +7,10 @@ BUNDLE_INSTALL_DIR = $(GNUSTEP_SYSTEM_LIBRARY)/Bundles
 
 AmbrosiaModule_OBJC_FILES = AmbrosiaModule.m
 
-AmbrosiaModule_OBJCFLAGS  = -fobjc-arc
+AmbrosiaModule_OBJCFLAGS = -fno-objc-arc
+
+
+
 AmbrosiaModule_PRINCIPAL_CLASS = AmbrosiaModule
 AmbrosiaModule_MAIN_MODEL_FILE = AmbrosiaModule
 

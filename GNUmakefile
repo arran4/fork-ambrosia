@@ -24,7 +24,7 @@
 
 include $(GNUSTEP_MAKEFILES)/common.make
 
-SUBPROJECTS = Compositor Dock SystemPreferences MenuServer AmbrosiaMenus
+SUBPROJECTS = SystemPreferences MenuServer AmbrosiaMenus
 
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 

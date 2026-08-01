@@ -2,11 +2,12 @@
 #import "MenuBarController.h"
 
 @implementation AppDelegate
+@synthesize menuBarController = _menuBarController;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
     _menuBarController = [[MenuBarController alloc] init];
-    [_menuBarController showMenuBar];
+    // [_menuBarController showMenuBar]; /* Method does not exist */
 
     [[NSDistributedNotificationCenter defaultCenter]
         addObserver:self
@@ -27,7 +28,9 @@
 
 - (void)dealloc
 {
+    [_menuBarController release];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+    [super dealloc];
 }
 
 @end

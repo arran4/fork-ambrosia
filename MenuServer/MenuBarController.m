@@ -49,13 +49,13 @@ static NSString *MenuBarPrefsPath(void)
 static BOOL ReadMenuBarPref(NSString *key)
 {
     NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:MenuBarPrefsPath()];
-    return [prefs[key] boolValue];
+    return [[prefs objectForKey:key] boolValue];
 }
 
 static NSString *ReadMenuBarStringPref(NSString *key)
 {
     NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:MenuBarPrefsPath()];
-    NSString *value = prefs[key];
+    NSString *value = [prefs objectForKey:key];
     return [value isKindOfClass:[NSString class]] ? value : nil;
 }
 
@@ -73,11 +73,11 @@ static NSDictionary *PrimaryMonitorFromSystemPreferences(void)
     if (![prefs isKindOfClass:[NSDictionary class]]) return nil;
 
     /* The plist uses "Screens" as the array key. */
-    NSArray *keyCandidates = @[@"Screens", @"screens", @"Monitors", @"monitors",
-                                @"Monitor", @"monitor"];
+    NSArray *keyCandidates = [NSArray arrayWithObjects:@"Screens", @"screens", @"Monitors", @"monitors",
+                                @"Monitor", @"monitor", nil];
     NSArray *monitors = nil;
     for (NSString *key in keyCandidates) {
-        id value = prefs[key];
+        id value = [prefs objectForKey:key];
         if ([value isKindOfClass:[NSArray class]]) {
             monitors = (NSArray *)value;
             break;
@@ -89,14 +89,14 @@ static NSDictionary *PrimaryMonitorFromSystemPreferences(void)
         if (![entry isKindOfClass:[NSDictionary class]]) continue;
         NSDictionary *monitor = (NSDictionary *)entry;
         BOOL isPrimary =
-            [monitor[@"primary"] boolValue]  ||
-            [monitor[@"Primary"] boolValue]  ||
-            [monitor[@"isPrimary"] boolValue]||
-            [monitor[@"IsPrimary"] boolValue];
+            [[monitor objectForKey:@"primary"] boolValue]  ||
+            [[monitor objectForKey:@"Primary"] boolValue]  ||
+            [[monitor objectForKey:@"isPrimary"] boolValue]||
+            [[monitor objectForKey:@"IsPrimary"] boolValue];
         if (isPrimary) return monitor;
     }
     /* Fall back to the first entry if none is marked primary. */
-    return [monitors firstObject];
+    return ([monitors count] > 0 ? [monitors objectAtIndex:0] : nil);
 }
 
 static NSRect MenuBarRectForStartupScreen(void)
@@ -109,14 +109,14 @@ static NSRect MenuBarRectForStartupScreen(void)
         /* Physical pixel width is nested under "resolution" in the plist
          * written by SystemPreferences (e.g. resolution.width = 2560).
          * Fall back to a flat "width" key for older plist formats.        */
-        NSDictionary *res = primaryMonitor[@"resolution"];
-        double width = [res[@"width"] doubleValue];
+        NSDictionary *res = [primaryMonitor objectForKey:@"resolution"];
+        double width = [[res objectForKey:@"width"] doubleValue];
         if (width <= 0.0)
-            width = [primaryMonitor[@"width"] doubleValue]
-                 ?: [primaryMonitor[@"Width"] doubleValue];
+            width = [[primaryMonitor objectForKey:@"width"] doubleValue]
+                 ?: [[primaryMonitor objectForKey:@"Width"] doubleValue];
 
         double scale =
-            [primaryMonitor[@"scale"] doubleValue] ?: [primaryMonitor[@"Scale"] doubleValue];
+            [[primaryMonitor objectForKey:@"scale"] doubleValue] ?: [[primaryMonitor objectForKey:@"Scale"] doubleValue];
 
         if (width > 0.0) {
             sf.size.width = (scale > 0.0) ? (CGFloat)(width / scale) : (CGFloat)width;
@@ -140,37 +140,7 @@ static NSRect MenuBarRectForStartupScreen(void)
 static NSString * const kForeignQuitIdentifier = @"__ambrosia_quit_foreign__";
 static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_window__:";
 
-@implementation MenuBarController {
-    NSPanel              *_menuPanel;
-    MenuBarView          *_menuBarView;
-    NSConnection         *_doConnection;
-    NSString             *_activeAppName;
-    NSArray              *_activeMenuItems;
-    /* PID of the DO-registered active app, or 0 if no app has registered. */
-    int32_t               _activeClientPID;
-    id                    _activateObserver;
-    id                    _deactivateObserver;
-    /* GFinder running-state tracking. */
-    int32_t               _gfinderPID;        /* 0 = not running */
-    NSString             *_gfinderLaunchPath; /* path seen at launch time */
-    id                    _gfinderLaunchObs;
-    id                    _gfinderTerminateObs;
-    /* Status item plugins */
-    BluetoothStatusItem  *_bluetoothItem;
-    WiFiStatusItem       *_wifiItem;
-    VolumeStatusItem     *_volumeItem;
-    /* Tray icon manager (SNI / StatusNotifierItem) */
-    TrayManager          *_trayManager;
-
-    /* Non-GNUstep (foreign) application focus tracking.
-     * Set when the compositor reports focus on a PID that has no DO
-     * registration; cleared as soon as a GNUstep app registers.           */
-    int32_t               _activeForeignPID;
-    NSString             *_activeForeignName;
-    /* Monotonically-increasing token used to cancel pending delayed
-     * foreign-app activations if a GNUstep app registers first.           */
-    NSInteger             _foreignToken;
-}
+@implementation MenuBarController
 
 @synthesize menuPanel    = _menuPanel;
 @synthesize menuBarView  = _menuBarView;
@@ -276,8 +246,8 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_screenPrefsChanged:(NSNotification *)note
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSNumber *w = note.userInfo[@"logicalWidth"];
-        NSNumber *h = note.userInfo[@"logicalHeight"];
+        NSNumber *w = [note.userInfo objectForKey:@"logicalWidth"];
+        NSNumber *h = [note.userInfo objectForKey:@"logicalHeight"];
 
         /* Use compositor-supplied logical dimensions when available; fall back
          * to the plist + screen.frame calculation for older senders.          */
@@ -315,7 +285,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
     _menuPanel = [[NSPanel alloc]
                   initWithContentRect:barRect
-                            styleMask:NSWindowStyleMaskBorderless
+                            styleMask:NSBorderlessWindowMask
                               backing:NSBackingStoreBuffered
                                 defer:NO];
 
@@ -383,8 +353,8 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_compositorFocusChanged:(NSNotification *)note
 {
     NSDictionary *info   = note.userInfo;
-    int32_t       pid    = (int32_t)[info[@"pid"] intValue];
-    NSString     *name   = info[@"appName"];
+    int32_t       pid    = (int32_t)[[info objectForKey:@"pid"] intValue];
+    NSString     *name   = [info objectForKey:@"appName"];
 
     if (pid <= 0) return;
 
@@ -405,7 +375,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
             /* A GNUstep app registered in the meantime — leave it alone. */
             if (self->_activeClientPID == pid) return;
 
-            [self _activateForeignAppWithPID:pid name:name windows:info[@"windows"]];
+            [self _activateForeignAppWithPID:pid name:name windows:[info objectForKey:@"windows"]];
         });
     });
 }
@@ -418,7 +388,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
 - (void)_activateForeignAppWithPID:(int32_t)pid
                               name:(NSString *)name
-                           windows:(NSArray<NSDictionary *> *)windows
+                           windows:(NSArray *)windows
 {
     /* If no name arrived from the compositor, fall back to /proc/pid/comm */
     if (!name.length) {
@@ -426,7 +396,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
             [NSString stringWithFormat:@"/proc/%d/comm", pid];
         NSString *comm = [NSString stringWithContentsOfFile:commPath
                                                    encoding:NSUTF8StringEncoding
-                                                      error:nil];
+                                                      error:NULL];
         name = [comm stringByTrimmingCharactersInSet:
                 [NSCharacterSet whitespaceAndNewlineCharacterSet]];
     }
@@ -452,8 +422,8 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     if (windows.count > 0) {
         NSMutableArray *windowItems = [NSMutableArray array];
         for (NSDictionary *w in windows) {
-            NSString *title = [w[@"title"] isKindOfClass:[NSString class]] ? w[@"title"] : @"Window";
-            NSInteger idx = [w[@"index"] integerValue];
+            NSString *title = [[w objectForKey:@"title"] isKindOfClass:[NSString class]] ? [w objectForKey:@"title"] : @"Window";
+            NSInteger idx = [[w objectForKey:@"index"] integerValue];
             [windowItems addObject:@{
                 kMenuItemTitle: title,
                 kMenuItemIdentifier: [NSString stringWithFormat:@"%@%d:%ld",
@@ -484,7 +454,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_observeWorkspace
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    __weak typeof(self) weakSelf = self;
+    MenuBarController *weakSelf = self;
 
     /* GNUstep does not post activate/deactivate notifications.
      * Use DidLaunchApplication as a best-effort fallback: show the app name
@@ -495,12 +465,12 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         /* If a DO-registered app is active, it owns the bar — do not
          * override it with the workspace fallback.                      */
         if (strongSelf->_activeClientPID != 0) return;
-        NSString *name = note.userInfo[@"NSApplicationName"];
+        NSString *name = [note.userInfo objectForKey:@"NSApplicationName"];
         if (name.length && ![name isEqualToString:strongSelf->_activeAppName]) {
             [strongSelf _updateActiveApp:name menuItems:nil pid:0];
         }
@@ -514,11 +484,11 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
-        NSNumber *pidNum = note.userInfo[@"NSApplicationProcessIdentifier"];
+        NSNumber *pidNum = [note.userInfo objectForKey:@"NSApplicationProcessIdentifier"];
         int32_t   terminatedPID = pidNum ? (int32_t)[pidNum intValue] : 0;
-        NSString *name = note.userInfo[@"NSApplicationName"];
+        NSString *name = [note.userInfo objectForKey:@"NSApplicationName"];
         BOOL matchesPID  = (terminatedPID != 0 &&
                             terminatedPID == strongSelf->_activeClientPID);
         BOOL matchesName = [name isEqualToString:strongSelf->_activeAppName];
@@ -615,10 +585,10 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     }
     if ([identifier hasPrefix:kForeignWindowIdentifierPrefix]) {
         NSString *rest = [identifier substringFromIndex:kForeignWindowIdentifierPrefix.length];
-        NSArray<NSString *> *parts = [rest componentsSeparatedByString:@":"];
+        NSArray *parts = [rest componentsSeparatedByString:@":"];
         if (parts.count == 2) {
-            int32_t pid = (int32_t)[parts[0] intValue];
-            NSInteger idx = [parts[1] integerValue];
+            int32_t pid = (int32_t)[[parts objectAtIndex:0] intValue];
+            NSInteger idx = [[parts objectAtIndex:1] integerValue];
             [[NSDistributedNotificationCenter defaultCenter]
                 postNotificationName:@"AmbrosiaActivateWindow"
                               object:nil
@@ -658,12 +628,11 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
 - (void)openSystemPreferences
 {
-    NSArray<NSString *> *candidates = @[
-        @"/usr/GNUstep/Local/Applications/SystemPreferences.app",
+    NSArray *candidates = [NSArray arrayWithObjects:@"/usr/GNUstep/Local/Applications/SystemPreferences.app",
         @"/usr/GNUstep/System/Applications/SystemPreferences.app",
         @"/usr/local/GNUstep/Local/Applications/SystemPreferences.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/SystemPreferences.app"],
+            @"GNUstep/Applications/SystemPreferences.app"], nil
     ];
     for (NSString *path in candidates) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -680,22 +649,22 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 - (void)_startTrackingGFinder
 {
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    __weak typeof(self) weakSelf = self;
+    MenuBarController *weakSelf = self;
 
     _gfinderLaunchObs = [ws.notificationCenter
         addObserverForName:NSWorkspaceDidLaunchApplicationNotification
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
-        NSString *bundleID = info[@"NSApplicationBundleIdentifier"];
-        NSString *name     = info[@"NSApplicationName"];
+        NSString *bundleID = [info objectForKey:@"NSApplicationBundleIdentifier"];
+        NSString *name     = [info objectForKey:@"NSApplicationName"];
         if ([bundleID isEqualToString:@"org.gnustep.GFinder"] ||
             [name isEqualToString:@"GFinder"]) {
-            strongSelf->_gfinderPID        = [info[@"NSApplicationProcessIdentifier"] intValue];
-            strongSelf->_gfinderLaunchPath = info[@"NSApplicationPath"];
+            strongSelf->_gfinderPID        = [[info objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+            strongSelf->_gfinderLaunchPath = [info objectForKey:@"NSApplicationPath"];
         }
     }];
 
@@ -704,12 +673,12 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
                     object:nil
                      queue:[NSOperationQueue mainQueue]
                 usingBlock:^(NSNotification *note) {
-        __strong typeof(self) strongSelf = weakSelf;
+        MenuBarController *strongSelf = weakSelf;
         if (!strongSelf) return;
         NSDictionary *info = note.userInfo;
-        NSString *bundleID = info[@"NSApplicationBundleIdentifier"];
-        NSString *name     = info[@"NSApplicationName"];
-        int32_t   pid      = [info[@"NSApplicationProcessIdentifier"] intValue];
+        NSString *bundleID = [info objectForKey:@"NSApplicationBundleIdentifier"];
+        NSString *name     = [info objectForKey:@"NSApplicationName"];
+        int32_t   pid      = [[info objectForKey:@"NSApplicationProcessIdentifier"] intValue];
         if ([bundleID isEqualToString:@"org.gnustep.GFinder"] ||
             [name isEqualToString:@"GFinder"] ||
             (pid != 0 && pid == strongSelf->_gfinderPID)) {
@@ -724,10 +693,10 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     if (_gfinderPID != 0) {
         /* GFinder is already running — ask the compositor to bring it to focus. */
         NSMutableDictionary *info = [NSMutableDictionary dictionary];
-        info[@"bundleIdentifier"] = @"org.gnustep.GFinder";
-        info[@"appName"]          = @"GFinder";
+        [info setObject:@"org.gnustep.GFinder" forKey:@"bundleIdentifier"];
+        [info setObject:@"GFinder" forKey:@"appName"];
         if (_gfinderLaunchPath.length)
-            info[@"launchPath"] = _gfinderLaunchPath;
+            [info setObject:_gfinderLaunchPath forKey:@"launchPath"];
         [[NSDistributedNotificationCenter defaultCenter]
             postNotificationName:@"AmbrosiaActivateApplication"
                           object:nil
@@ -737,12 +706,11 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     }
 
     /* GFinder is not running — launch it. */
-    NSArray<NSString *> *candidates = @[
-        @"/usr/GNUstep/Local/Applications/GFinder.app",
+    NSArray *candidates = [NSArray arrayWithObjects:@"/usr/GNUstep/Local/Applications/GFinder.app",
         @"/usr/GNUstep/System/Applications/GFinder.app",
         @"/usr/local/GNUstep/Local/Applications/GFinder.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/GFinder.app"],
+            @"GNUstep/Applications/GFinder.app"], nil
     ];
     for (NSString *path in candidates) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -799,12 +767,11 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
      * focus via the compositor's activate notification instead of launching
      * a second instance.  Fall back to common X11 terminal emulators when
      * Terminal.app is not installed.                                        */
-    NSArray<NSString *> *terminalAppCandidates = @[
-        @"/usr/GNUstep/Local/Applications/Terminal.app",
+    NSArray *terminalAppCandidates = [NSArray arrayWithObjects:@"/usr/GNUstep/Local/Applications/Terminal.app",
         @"/usr/GNUstep/System/Applications/Terminal.app",
         @"/usr/local/GNUstep/Local/Applications/Terminal.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/Terminal.app"],
+            @"GNUstep/Applications/Terminal.app"], nil
     ];
 
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -820,8 +787,8 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
         /* Check whether Terminal.app is already in the running-applications list. */
         BOOL alreadyRunning = NO;
         for (NSDictionary *info in [[NSWorkspace sharedWorkspace] launchedApplications]) {
-            NSString *appPath = info[@"NSApplicationPath"];
-            NSString *appName = info[@"NSApplicationName"];
+            NSString *appPath = [info objectForKey:@"NSApplicationPath"];
+            NSString *appName = [info objectForKey:@"NSApplicationName"];
             if ([appPath isEqualToString:terminalPath] ||
                 [appName isEqualToString:@"Terminal"]) {
                 alreadyRunning = YES;
@@ -846,15 +813,13 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     }
 
     /* Terminal.app not found — fall back to generic X11 terminal emulators. */
-    NSArray<NSString *> *fallbacks = @[
-        @"/usr/bin/xterm",
+    NSArray *fallbacks = [NSArray arrayWithObjects:@"/usr/bin/xterm",
         @"/usr/bin/x-terminal-emulator",
         @"/usr/bin/gnome-terminal",
         @"/usr/bin/konsole",
         @"/usr/bin/xfce4-terminal",
         @"/usr/bin/lxterminal",
-        @"/usr/bin/mate-terminal",
-    ];
+        @"/usr/bin/mate-terminal", nil];
     for (NSString *path in fallbacks) {
         if ([fm fileExistsAtPath:path]) {
             [[NSWorkspace sharedWorkspace] launchApplication:path];
@@ -869,14 +834,13 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
     /* CalendarAppPath in AmbrosiaMenuBar.plist overrides the default app. */
     NSString *overridePath = ReadMenuBarStringPref(@"CalendarAppPath");
 
-    NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+    NSMutableArray *candidates = [NSMutableArray array];
     if (overridePath.length) [candidates addObject:overridePath];
-    [candidates addObjectsFromArray:@[
-        @"/usr/GNUstep/Local/Applications/SimpleAgenda.app",
+    [candidates addObjectsFromArray:[NSArray arrayWithObjects:@"/usr/GNUstep/Local/Applications/SimpleAgenda.app",
         @"/usr/GNUstep/System/Applications/SimpleAgenda.app",
         @"/usr/local/GNUstep/Local/Applications/SimpleAgenda.app",
         [NSHomeDirectory() stringByAppendingPathComponent:
-            @"GNUstep/Applications/SimpleAgenda.app"],
+            @"GNUstep/Applications/SimpleAgenda.app"], nil
     ]];
 
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -900,7 +864,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
     if ([alert runModal] == NSAlertFirstButtonReturn) {
         [[NSTask launchedTaskWithLaunchPath:@"/bin/sh"
-                                  arguments:@[@"-c", @"systemctl poweroff"]] waitUntilExit];
+                                  arguments:[NSArray arrayWithObjects:@"-c", @"systemctl poweroff", nil]] waitUntilExit];
     }
 }
 
@@ -914,7 +878,7 @@ static NSString * const kForeignWindowIdentifierPrefix = @"__ambrosia_foreign_wi
 
     if ([alert runModal] == NSAlertFirstButtonReturn) {
         [[NSTask launchedTaskWithLaunchPath:@"/bin/sh"
-                                  arguments:@[@"-c", @"systemctl reboot"]] waitUntilExit];
+                                  arguments:[NSArray arrayWithObjects:@"-c", @"systemctl reboot", nil]] waitUntilExit];
     }
 }
 

@@ -20,6 +20,14 @@
 #import "MenuServerProtocol.h"
 
 @interface AmbrosiaMenusBundle : NSObject
+{
+    id<MenuServerProtocol> _serverProxy;
+    int32_t                _nextItemId;
+    NSMutableDictionary   *_itemTable;
+    NSTimer               *_retryTimer;
+    NSUInteger             _retryCount;
+}
+
 
 /** Returns the per-process singleton.  Created on first call. */
 + (instancetype)sharedBundle;

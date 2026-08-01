@@ -122,7 +122,7 @@ static NSString * const kAmbrosiaAppPIDKey                     = @"appPID";
  * Called when a GNUstep application becomes the frontmost application.
  *
  * @param appName   Human-readable name shown in the menu bar.
- * @param menuItems NSArray<NSDictionary*> of top-level menu descriptors.
+ * @param menuItems NSArray of top-level menu descriptors.
  *                  Each entry may contain a kMenuItemChildren array.
  *                  Pass nil to display the app name only.
  * @param pid       The calling process's PID (as NSNumber int32).
