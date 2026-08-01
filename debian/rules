@@ -15,4 +15,5 @@ override_dh_auto_build:
 	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) CC=clang CXX=clang++ OBJC=clang
 
 override_dh_auto_install:
-	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia CC=clang CXX=clang++ OBJC=clang
+	rm -rf $(CURDIR)/debian/ambrosia/usr/local
+	. /usr/share/GNUstep/Makefiles/GNUstep.sh && $(MAKE) install DESTDIR=$(CURDIR)/debian/ambrosia GNUSTEP_INSTALLATION_DOMAIN=SYSTEM CC=clang CXX=clang++ OBJC=clang
